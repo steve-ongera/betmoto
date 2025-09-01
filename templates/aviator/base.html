@@ -45,6 +45,29 @@
             color: var(--primary-color) !important;
         }
 
+        /* Custom dropdown styling for dark theme */
+        .dropdown-menu {
+            background-color: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .dropdown-item {
+            color: var(--text-light);
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-item:hover,
+        .dropdown-item:focus {
+            background-color: rgba(26, 115, 232, 0.1);
+            color: var(--primary-color);
+        }
+
+        .dropdown-divider {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
         .card {
             background: var(--card-bg);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -192,23 +215,23 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'aviator:home' %}">
+            <a class="navbar-brand" href="{% url 'home' %}">
                 <i class="fas fa-plane"></i> BetMoto Aviator
             </a>
             
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'aviator:home' %}">
+                        <a class="nav-link" href="{% url 'home' %}">
                             <i class="fas fa-gamepad"></i> Play
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'aviator:leaderboard' %}">
+                        <a class="nav-link" href="{% url 'leaderboard' %}">
                             <i class="fas fa-trophy"></i> Leaderboard
                         </a>
                     </li>
@@ -217,44 +240,44 @@
                 <ul class="navbar-nav">
                     {% if user.is_authenticated %}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="walletDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-wallet"></i> 
                                 {% if wallet %}KES {{ wallet.balance }}{% else %}KES 0.00{% endif %}
                             </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'aviator:deposit' %}">
+                            <ul class="dropdown-menu" aria-labelledby="walletDropdown">
+                                <li><a class="dropdown-item" href="{% url 'deposit' %}">
                                     <i class="fas fa-plus"></i> Deposit
                                 </a></li>
-                                <li><a class="dropdown-item" href="{% url 'aviator:withdrawal' %}">
+                                <li><a class="dropdown-item" href="{% url 'withdrawal' %}">
                                     <i class="fas fa-minus"></i> Withdraw
                                 </a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user"></i> {{ user.username }}
                             </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'aviator:profile' %}">
+                            <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="{% url 'profile' %}">
                                     <i class="fas fa-user-circle"></i> Profile
                                 </a></li>
-                                <li><a class="dropdown-item" href="{% url 'aviator:transactions' %}">
+                                <li><a class="dropdown-item" href="{% url 'transactions' %}">
                                     <i class="fas fa-history"></i> Transactions
                                 </a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'aviator:logout' %}">
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">
                                     <i class="fas fa-sign-out-alt"></i> Logout
                                 </a></li>
                             </ul>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'aviator:login' %}">
+                            <a class="nav-link" href="{% url 'login' %}">
                                 <i class="fas fa-sign-in-alt"></i> Login
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'aviator:register' %}">
+                            <a class="nav-link" href="{% url 'register' %}">
                                 <i class="fas fa-user-plus"></i> Register
                             </a>
                         </li>
@@ -304,6 +327,22 @@
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Ensure Bootstrap is loaded before initializing dropdowns
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all dropdowns manually if needed
+            var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+            var dropdownList = dropdownElementList.map(function(dropdownToggleEl) {
+                return new bootstrap.Dropdown(dropdownToggleEl);
+            });
+
+            // Debug: Check if Bootstrap is loaded
+            if (typeof bootstrap === 'undefined') {
+                console.error('Bootstrap JavaScript is not loaded!');
+            } else {
+                console.log('Bootstrap loaded successfully');
+            }
+        });
+
         // Global variables for CSRF token
         const csrfToken = '{{ csrf_token }}';
         

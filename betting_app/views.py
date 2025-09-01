@@ -85,7 +85,7 @@ def home(request):
 def register_view(request):
     """User registration"""
     if request.user.is_authenticated:
-        return redirect('aviator:home')
+        return redirect('home')
     
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
@@ -97,7 +97,7 @@ def register_view(request):
             UserGameStatistics.objects.create(user=user)
             
             messages.success(request, 'Account created successfully! Please login.')
-            return redirect('aviator:login')
+            return redirect('login')
     else:
         form = RegistrationForm()
     
@@ -107,7 +107,7 @@ def register_view(request):
 def login_view(request):
     """User login"""
     if request.user.is_authenticated:
-        return redirect('aviator:home')
+        return redirect('home')
     
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -118,7 +118,7 @@ def login_view(request):
             
             if user:
                 login(request, user)
-                return redirect('aviator:home')
+                return redirect('home')
             else:
                 messages.error(request, 'Invalid credentials')
     else:
@@ -171,7 +171,7 @@ def deposit_view(request):
             deposit.save()
             
             messages.success(request, 'Deposit request submitted successfully!')
-            return redirect('aviator:profile')
+            return redirect('profile')
     else:
         form = DepositForm()
     
@@ -203,7 +203,7 @@ def withdrawal_view(request):
                 withdrawal.save()
                 
                 messages.success(request, 'Withdrawal request submitted successfully!')
-                return redirect('aviator:profile')
+                return redirect('profile')
     else:
         form = WithdrawalForm()
     

@@ -60,22 +60,22 @@
                 </h5>
                 <div class="row g-3">
                     <div class="col-md-3">
-                        <a href="{% url 'aviator:deposit' %}" class="btn btn-success w-100">
+                        <a href="{% url 'deposit' %}" class="btn btn-success w-100">
                             <i class="fas fa-plus"></i> Deposit Funds
                         </a>
                     </div>
                     <div class="col-md-3">
-                        <a href="{% url 'aviator:withdrawal' %}" class="btn btn-warning w-100">
+                        <a href="{% url 'withdrawal' %}" class="btn btn-warning w-100">
                             <i class="fas fa-minus"></i> Withdraw
                         </a>
                     </div>
                     <div class="col-md-3">
-                        <a href="{% url 'aviator:home' %}" class="btn btn-primary w-100">
+                        <a href="{% url 'home' %}" class="btn btn-primary w-100">
                             <i class="fas fa-play"></i> Play Now
                         </a>
                     </div>
                     <div class="col-md-3">
-                        <a href="{% url 'aviator:transactions' %}" class="btn btn-info w-100">
+                        <a href="{% url 'transactions' %}" class="btn btn-info w-100">
                             <i class="fas fa-history"></i> View History
                         </a>
                     </div>
@@ -151,7 +151,7 @@
                 <h5 class="mb-0">
                     <i class="fas fa-exchange-alt"></i> Recent Transactions
                 </h5>
-                <a href="{% url 'aviator:transactions' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                <a href="{% url 'transactions' %}" class="btn btn-sm btn-outline-primary">View All</a>
             </div>
             <div class="card-body">
                 {% if transactions %}
