@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate , logout
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -126,6 +126,10 @@ def login_view(request):
     
     return render(request, 'aviator/login.html', {'form': form})
 
+
+def logout_view(request):
+    logout(request)  # Clears the session
+    return redirect('home')  # Redirect to home page after logout
 
 @login_required
 def profile_view(request):

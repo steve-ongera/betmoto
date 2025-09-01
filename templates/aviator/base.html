@@ -325,21 +325,21 @@
     </footer>
 
     <!-- Scripts -->
+     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
         // Ensure Bootstrap is loaded before initializing dropdowns
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize all dropdowns manually if needed
-            var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
-            var dropdownList = dropdownElementList.map(function(dropdownToggleEl) {
-                return new bootstrap.Dropdown(dropdownToggleEl);
+            // Initialize dropdowns
+            document.querySelectorAll('.dropdown-toggle').forEach(function (el) {
+                new bootstrap.Dropdown(el);
             });
 
-            // Debug: Check if Bootstrap is loaded
-            if (typeof bootstrap === 'undefined') {
-                console.error('Bootstrap JavaScript is not loaded!');
+            // Debug check
+            if (typeof bootstrap !== 'undefined') {
+                console.log("✅ Bootstrap dropdowns initialized");
             } else {
-                console.log('Bootstrap loaded successfully');
+                console.error("❌ Bootstrap not loaded");
             }
         });
 
