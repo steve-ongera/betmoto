@@ -15,7 +15,7 @@ SECRET_KEY = 'django-insecure--^on1y%6yq_x-f6te-@jq-f^)pgd4lk=(du24ggrh7+m+mz6pj
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -49,7 +49,7 @@ ROOT_URLCONF = 'betmoto.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
