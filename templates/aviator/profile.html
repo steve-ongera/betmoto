@@ -1,0 +1,362 @@
+{% extends 'aviator/base.html' %}
+
+{% block title %}Profile - BetMoto Aviator{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Profile Header -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-3 text-center">
+                        <div class="avatar-wrapper">
+                            <i class="fas fa-user-circle fa-5x text-primary"></i>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="mb-1">{{ user.username }}</h3>
+                        <p class="text-muted mb-2">
+                            <i class="fas fa-phone"></i> {{ user.phone_number }}
+                        </p>
+                        {% if user.email %}
+                        <p class="text-muted mb-2">
+                            <i class="fas fa-envelope"></i> {{ user.email }}
+                        </p>
+                        {% endif %}
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-{% if user.is_verified %}success{% else %}warning{% endif %} me-2">
+                                {% if user.is_verified %}
+                                    <i class="fas fa-check-circle"></i> Verified
+                                {% else %}
+                                    <i class="fas fa-clock"></i> Pending Verification
+                                {% endif %}
+                            </span>
+                            <span class="badge bg-{% if user.kyc_status == 'verified' %}success{% elif user.kyc_status == 'rejected' %}danger{% else %}secondary{% endif %}">
+                                KYC: {{ user.get_kyc_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="balance-card">
+                            <h5 class="mb-1">Current Balance</h5>
+                            <h3 class="mb-0">KES {{ wallet.balance }}</h3>
+                            {% if wallet.bonus_balance > 0 %}
+                            <small>Bonus: KES {{ wallet.bonus_balance }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-bolt"></i> Quick Actions
+                </h5>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <a href="{% url 'aviator:deposit' %}" class="btn btn-success w-100">
+                            <i class="fas fa-plus"></i> Deposit Funds
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'aviator:withdrawal' %}" class="btn btn-warning w-100">
+                            <i class="fas fa-minus"></i> Withdraw
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'aviator:home' %}" class="btn btn-primary w-100">
+                            <i class="fas fa-play"></i> Play Now
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'aviator:transactions' %}" class="btn btn-info w-100">
+                            <i class="fas fa-history"></i> View History
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wallet Overview -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-wallet"></i> Wallet Overview
+                </h5>
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <h4 class="text-success">KES {{ wallet.total_deposited }}</h4>
+                            <small class="text-muted">Total Deposited</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <h4 class="text-warning">KES {{ wallet.total_withdrawn }}</h4>
+                        <small class="text-muted">Total Withdrawn</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Statistics -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-chart-line"></i> Game Statistics
+                </h5>
+                {% if user_stats %}
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <div class="border-end">
+                            <h4 class="text-primary">{{ user_stats.total_games_played }}</h4>
+                            <small class="text-muted">Games Played</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <h4 class="text-success">{{ user_stats.win_rate }}%</h4>
+                        <small class="text-muted">Win Rate</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="border-end">
+                            <h4 class="text-warning">{{ user_stats.highest_multiplier }}x</h4>
+                            <small class="text-muted">Best Multiplier</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <h4 class="text-info">KES {{ user_stats.biggest_win }}</h4>
+                        <small class="text-muted">Biggest Win</small>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">No game statistics available yet. Start playing to see your stats!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-exchange-alt"></i> Recent Transactions
+                </h5>
+                <a href="{% url 'aviator:transactions' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if transactions %}
+                <div class="list-group list-group-flush">
+                    {% for transaction in transactions|slice:":5" %}
+                    <div class="list-group-item bg-transparent border-0 px-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-{% if transaction.transaction_type == 'deposit' %}plus text-success{% elif transaction.transaction_type == 'withdrawal' %}minus text-warning{% elif transaction.transaction_type == 'bet' %}gamepad text-primary{% elif transaction.transaction_type == 'win' %}trophy text-success{% else %}gift text-info{% endif %}"></i>
+                                <span class="ms-2">{{ transaction.get_transaction_type_display }}</span>
+                                <small class="text-muted d-block">{{ transaction.created_at|date:"M d, Y H:i" }}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="fw-bold {% if transaction.transaction_type == 'win' or transaction.transaction_type == 'deposit' or transaction.transaction_type == 'bonus' %}text-success{% else %}text-warning{% endif %}">
+                                    {% if transaction.transaction_type == 'bet' or transaction.transaction_type == 'withdrawal' %}-{% else %}+{% endif %}KES {{ transaction.amount }}
+                                </span>
+                                <small class="d-block text-muted">{{ transaction.get_status_display }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center">No transactions yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Deposits & Withdrawals -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="financeTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="deposits-tab" data-bs-toggle="tab" data-bs-target="#deposits" type="button" role="tab">
+                            <i class="fas fa-arrow-down"></i> Deposits
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="withdrawals-tab" data-bs-toggle="tab" data-bs-target="#withdrawals" type="button" role="tab">
+                            <i class="fas fa-arrow-up"></i> Withdrawals
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="financeTabContent">
+                    <div class="tab-pane fade show active" id="deposits" role="tabpanel">
+                        {% if deposits %}
+                        <div class="list-group list-group-flush">
+                            {% for deposit in deposits|slice:":5" %}
+                            <div class="list-group-item bg-transparent border-0 px-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span>{{ deposit.payment_method.name }}</span>
+                                        <small class="text-muted d-block">{{ deposit.created_at|date:"M d, Y H:i" }}</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="fw-bold text-success">+KES {{ deposit.amount }}</span>
+                                        <span class="badge bg-{% if deposit.status == 'completed' %}success{% elif deposit.status == 'failed' %}danger{% else %}warning{% endif %} d-block mt-1">
+                                            {{ deposit.get_status_display }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center">No deposits yet.</p>
+                        {% endif %}
+                    </div>
+                    <div class="tab-pane fade" id="withdrawals" role="tabpanel">
+                        {% if withdrawals %}
+                        <div class="list-group list-group-flush">
+                            {% for withdrawal in withdrawals|slice:":5" %}
+                            <div class="list-group-item bg-transparent border-0 px-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span>{{ withdrawal.payment_method.name }}</span>
+                                        <small class="text-muted d-block">{{ withdrawal.created_at|date:"M d, Y H:i" }}</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="fw-bold text-warning">-KES {{ withdrawal.amount }}</span>
+                                        <span class="badge bg-{% if withdrawal.status == 'completed' %}success{% elif withdrawal.status == 'failed' %}danger{% else %}warning{% endif %} d-block mt-1">
+                                            {{ withdrawal.get_status_display }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center">No withdrawals yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Security -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-shield-alt"></i> Account Security
+                </h5>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-{% if user.is_verified %}check-circle text-success{% else %}exclamation-circle text-warning{% endif %} fa-2x me-3"></i>
+                            <div>
+                                <h6 class="mb-0">Phone Verification</h6>
+                                <small class="text-muted">
+                                    {% if user.is_verified %}Verified{% else %}Pending{% endif %}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-{% if user.kyc_status == 'verified' %}check-circle text-success{% elif user.kyc_status == 'rejected' %}times-circle text-danger{% else %}clock text-warning{% endif %} fa-2x me-3"></i>
+                            <div>
+                                <h6 class="mb-0">KYC Status</h6>
+                                <small class="text-muted">{{ user.get_kyc_status_display }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-calendar fa-2x text-info me-3"></i>
+                            <div>
+                                <h6 class="mb-0">Member Since</h6>
+                                <small class="text-muted">{{ user.date_joined|date:"M Y" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if not user.is_verified or user.kyc_status != 'verified' %}
+                <hr>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Complete Your Verification:</strong>
+                    {% if not user.is_verified %}
+                        Verify your phone number for secure withdrawals.
+                    {% endif %}
+                    {% if user.kyc_status != 'verified' %}
+                        Complete KYC verification to increase your limits.
+                    {% endif %}
+                    <div class="mt-2">
+                        <button class="btn btn-info btn-sm">
+                            <i class="fas fa-upload"></i> Upload Documents
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Responsible Gaming -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-heart"></i> Responsible Gaming
+                </h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Betting Limits</h6>
+                        <p class="text-muted">Set daily, weekly, or monthly limits to control your spending.</p>
+                        <button class="btn btn-outline-warning btn-sm">
+                            <i class="fas fa-cog"></i> Manage Limits
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Self-Exclusion</h6>
+                        <p class="text-muted">Take a break from gaming if needed.</p>
+                        <button class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-pause"></i> Set Break
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+// Auto-refresh balance every 30 seconds
+setInterval(function() {
+    fetch('/user-balance/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.balance !== undefined) {
+                document.querySelectorAll('.balance-amount').forEach(el => {
+                    el.textContent = `KES ${data.balance.toFixed(2)}`;
+                });
+            }
+        })
+        .catch(console.error);
+}, 30000);
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,215 @@
+{% extends 'aviator/base.html' %}
+
+{% block title %}Register - BetMoto Aviator{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
+                    <h2 class="card-title">Create Account</h2>
+                    <p class="text-muted">Join BetMoto Aviator and start winning!</p>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">
+                                <i class="fas fa-user"></i> Username *
+                            </label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.username.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.phone_number.id_for_label }}" class="form-label">
+                                <i class="fas fa-phone"></i> Phone Number *
+                            </label>
+                            {{ form.phone_number }}
+                            {% if form.phone_number.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.phone_number.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <small class="text-muted">Format: +254712345678</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">
+                            <i class="fas fa-envelope"></i> Email (Optional)
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.email.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.date_of_birth.id_for_label }}" class="form-label">
+                            <i class="fas fa-calendar"></i> Date of Birth *
+                        </label>
+                        {{ form.date_of_birth }}
+                        {% if form.date_of_birth.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.date_of_birth.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <small class="text-muted">You must be 18 or older</small>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.password1.id_for_label }}" class="form-label">
+                                <i class="fas fa-lock"></i> Password *
+                            </label>
+                            {{ form.password1 }}
+                            {% if form.password1.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.password1.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.password2.id_for_label }}" class="form-label">
+                                <i class="fas fa-lock"></i> Confirm Password *
+                            </label>
+                            {{ form.password2 }}
+                            {% if form.password2.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.password2.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Age Verification -->
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Age Verification Required:</strong> You must be 18 years or older to register and play.
+                    </div>
+
+                    <!-- Terms and Conditions -->
+                    <div class="mb-3 form-check">
+                        {{ form.terms_accepted }}
+                        <label class="form-check-label" for="{{ form.terms_accepted.id_for_label }}">
+                            I accept the <a href="#" class="text-primary">Terms and Conditions</a> 
+                            and <a href="#" class="text-primary">Privacy Policy</a> *
+                        </label>
+                        {% if form.terms_accepted.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.terms_accepted.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Responsible Gaming Notice -->
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <small>
+                            <strong>Play Responsibly:</strong> Set limits, take breaks, and never bet more than you can afford to lose.
+                        </small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
+                </form>
+
+                <hr class="my-4">
+
+                <div class="text-center">
+                    <p class="text-muted mb-2">Already have an account?</p>
+                    <a href="{% url 'aviator:login' %}" class="btn btn-outline-light">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Features -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="fas fa-shield-alt text-success"></i> Your Security
+                </h6>
+                <div class="row text-center">
+                    <div class="col-4">
+                        <i class="fas fa-lock text-primary"></i>
+                        <small class="d-block text-muted">Encrypted</small>
+                    </div>
+                    <div class="col-4">
+                        <i class="fas fa-user-shield text-success"></i>
+                        <small class="d-block text-muted">KYC Verified</small>
+                    </div>
+                    <div class="col-4">
+                        <i class="fas fa-mobile-alt text-warning"></i>
+                        <small class="d-block text-muted">2FA Ready</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Phone number formatting
+    const phoneInput = document.getElementById('{{ form.phone_number.id_for_label }}');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.startsWith('254')) {
+                value = '+' + value;
+            } else if (value.startsWith('7') || value.startsWith('1')) {
+                value = '+254' + value;
+            }
+            e.target.value = value;
+        });
+    }
+
+    // Password strength indicator
+    const password1 = document.getElementById('{{ form.password1.id_for_label }}');
+    if (password1) {
+        password1.addEventListener('input', function(e) {
+            const password = e.target.value;
+            let strength = 0;
+            
+            if (password.length >= 8) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            const colors = ['danger', 'danger', 'warning', 'info', 'success'];
+            const labels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
+            
+            // Remove existing strength indicator
+            const existing = document.getElementById('password-strength');
+            if (existing) existing.remove();
+            
+            if (password.length > 0) {
+                const indicator = document.createElement('div');
+                indicator.id = 'password-strength';
+                indicator.className = `small text-${colors[strength]} mt-1`;
+                indicator.innerHTML = `<i class="fas fa-shield-alt"></i> Password strength: ${labels[strength]}`;
+                password1.parentNode.appendChild(indicator);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

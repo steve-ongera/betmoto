@@ -1,0 +1,311 @@
+{% extends 'aviator/base.html' %}
+
+{% block title %}Deposit Funds - BetMoto Aviator{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <!-- Deposit Form -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-plus-circle text-success"></i> Deposit Funds
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="post" id="depositForm">
+                    {% csrf_token %}
+                    
+                    <!-- Payment Method Selection -->
+                    <div class="mb-4">
+                        <label for="{{ form.payment_method.id_for_label }}" class="form-label">
+                            <i class="fas fa-credit-card"></i> Payment Method
+                        </label>
+                        {{ form.payment_method }}
+                        {% if form.payment_method.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.payment_method.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Quick Amount Buttons -->
+                    <div class="mb-3">
+                        <label class="form-label">Quick Select Amount</label>
+                        <div class="row g-2">
+                            <div class="col-4">
+                                <button type="button" class="btn btn-outline-primary w-100 quick-amount" data-amount="100">
+                                    KES 100
+                                </button>
+                            </div>
+                            <div class="col-4">
+                                <button type="button" class="btn btn-outline-primary w-100 quick-amount" data-amount="500">
+                                    KES 500
+                                </button>
+                            </div>
+                            <div class="col-4">
+                                <button type="button" class="btn btn-outline-primary w-100 quick-amount" data-amount="1000">
+                                    KES 1,000
+                                </button>
+                            </div>
+                            <div class="col-4">
+                                <button type="button" class="btn btn-outline-primary w-100 quick-amount" data-amount="2000">
+                                    KES 2,000
+                                </button>
+                            </div>
+                            <div class="col-4">
+                                <button type="button" class="btn btn-outline-primary w-100 quick-amount" data-amount="5000">
+                                    KES 5,000
+                                </button>
+                            </div>
+                            <div class="col-4">
+                                <button type="button" class="btn btn-outline-primary w-100 quick-amount" data-amount="10000">
+                                    KES 10,000
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Amount Input -->
+                    <div class="mb-3">
+                        <label for="{{ form.amount.id_for_label }}" class="form-label">
+                            <i class="fas fa-money-bill"></i> Deposit Amount
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-primary text-white">KES</span>
+                            {{ form.amount }}
+                        </div>
+                        {% if form.amount.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.amount.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <div id="amount-limits" class="small text-muted mt-1"></div>
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div class="mb-4">
+                        <label for="{{ form.phone_number.id_for_label }}" class="form-label">
+                            <i class="fas fa-phone"></i> M-Pesa Phone Number
+                        </label>
+                        {{ form.phone_number }}
+                        {% if form.phone_number.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.phone_number.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <small class="text-muted">The number to receive the M-Pesa prompt</small>
+                    </div>
+
+                    <!-- Fee Information -->
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Transaction Details:</strong>
+                        <div id="fee-breakdown" class="mt-2">
+                            <div class="d-flex justify-content-between">
+                                <span>Amount:</span>
+                                <span id="deposit-amount-display">KES 0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Fee:</span>
+                                <span id="deposit-fee-display">KES 0.00</span>
+                            </div>
+                            <hr class="my-2">
+                            <div class="d-flex justify-content-between fw-bold">
+                                <span>You'll Receive:</span>
+                                <span id="net-amount-display">KES 0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100 py-2" id="submitBtn">
+                        <i class="fas fa-plus"></i> Deposit Funds
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Payment Instructions -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-mobile-alt"></i> How to Deposit
+                </h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary">M-Pesa Steps:</h6>
+                        <ol class="small">
+                            <li>Enter your deposit amount</li>
+                            <li>Enter your M-Pesa number</li>
+                            <li>Click "Deposit Funds"</li>
+                            <li>Check your phone for M-Pesa prompt</li>
+                            <li>Enter your M-Pesa PIN</li>
+                            <li>Funds reflect in 1-2 minutes</li>
+                        </ol>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-success">Security Features:</h6>
+                        <ul class="small">
+                            <li><i class="fas fa-shield-alt text-success"></i> Encrypted transactions</li>
+                            <li><i class="fas fa-lock text-success"></i> Secure M-Pesa integration</li>
+                            <li><i class="fas fa-clock text-success"></i> Instant processing</li>
+                            <li><i class="fas fa-headset text-success"></i> 24/7 support</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Available Payment Methods -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-credit-card"></i> Available Payment Methods
+                </h5>
+                <div class="row">
+                    {% for method in payment_methods %}
+                    <div class="col-md-6 mb-3">
+                        <div class="border rounded p-3 {% if method.code == 'mpesa' %}border-success{% else %}border-secondary{% endif %}">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-{% if method.code == 'mpesa' %}mobile-alt text-success{% else %}credit-card text-primary{% endif %} fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">{{ method.name }}</h6>
+                                    <small class="text-muted">
+                                        Min: KES {{ method.min_deposit }} | Max: KES {{ method.max_deposit }}
+                                    </small>
+                                    {% if method.fee_percentage > 0 %}
+                                    <small class="d-block text-warning">
+                                        Fee: {{ method.fee_percentage }}%
+                                    </small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const amountInput = document.getElementById('{{ form.amount.id_for_label }}');
+    const paymentMethodSelect = document.getElementById('{{ form.payment_method.id_for_label }}');
+    const phoneInput = document.getElementById('{{ form.phone_number.id_for_label }}');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Payment method limits data
+    const paymentMethods = {
+        {% for method in payment_methods %}
+        '{{ method.id }}': {
+            name: '{{ method.name }}',
+            min_deposit: {{ method.min_deposit }},
+            max_deposit: {{ method.max_deposit }},
+            fee_percentage: {{ method.fee_percentage }}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    };
+
+    // Quick amount buttons
+    document.querySelectorAll('.quick-amount').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const amount = this.dataset.amount;
+            amountInput.value = amount;
+            updateFeeCalculation();
+            
+            // Visual feedback
+            document.querySelectorAll('.quick-amount').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    // Update limits when payment method changes
+    paymentMethodSelect.addEventListener('change', function() {
+        updateLimitsDisplay();
+        updateFeeCalculation();
+    });
+
+    // Update fee calculation when amount changes
+    amountInput.addEventListener('input', updateFeeCalculation);
+
+    // Pre-fill phone number with user's number
+    if (phoneInput && '{{ user.phone_number }}') {
+        phoneInput.value = '{{ user.phone_number }}';
+    }
+
+    function updateLimitsDisplay() {
+        const selectedMethodId = paymentMethodSelect.value;
+        const limitsDiv = document.getElementById('amount-limits');
+        
+        if (selectedMethodId && paymentMethods[selectedMethodId]) {
+            const method = paymentMethods[selectedMethodId];
+            limitsDiv.innerHTML = `Limits: KES ${method.min_deposit.toFixed(2)} - KES ${method.max_deposit.toLocaleString()}`;
+            
+            // Update amount input limits
+            amountInput.min = method.min_deposit;
+            amountInput.max = method.max_deposit;
+        } else {
+            limitsDiv.innerHTML = '';
+        }
+    }
+
+    function updateFeeCalculation() {
+        const amount = parseFloat(amountInput.value) || 0;
+        const selectedMethodId = paymentMethodSelect.value;
+        
+        if (selectedMethodId && paymentMethods[selectedMethodId] && amount > 0) {
+            const method = paymentMethods[selectedMethodId];
+            const fee = (amount * method.fee_percentage / 100);
+            const netAmount = amount - fee;
+            
+            document.getElementById('deposit-amount-display').textContent = `KES ${amount.toFixed(2)}`;
+            document.getElementById('deposit-fee-display').textContent = `KES ${fee.toFixed(2)}`;
+            document.getElementById('net-amount-display').textContent = `KES ${netAmount.toFixed(2)}`;
+        } else {
+            document.getElementById('deposit-amount-display').textContent = 'KES 0.00';
+            document.getElementById('deposit-fee-display').textContent = 'KES 0.00';
+            document.getElementById('net-amount-display').textContent = 'KES 0.00';
+        }
+    }
+
+    // Form submission handling
+    document.getElementById('depositForm').addEventListener('submit', function(e) {
+        const amount = parseFloat(amountInput.value) || 0;
+        const selectedMethodId = paymentMethodSelect.value;
+        
+        if (!selectedMethodId) {
+            e.preventDefault();
+            showToast('Please select a payment method', 'warning');
+            return;
+        }
+        
+        if (amount <= 0) {
+            e.preventDefault();
+            showToast('Please enter a valid amount', 'warning');
+            return;
+        }
+        
+        if (paymentMethods[selectedMethodId]) {
+            const method = paymentMethods[selectedMethodId];
+            if (amount < method.min_deposit || amount > method.max_deposit) {
+                e.preventDefault();
+                showToast(`Amount must be between KES ${method.min_deposit} and KES ${method.max_deposit}`, 'warning');
+                return;
+            }
+        }
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="loading-spinner me-2"></span>Processing...';
+    });
+
+    // Initialize displays
+    updateLimitsDisplay();
+    updateFeeCalculation();
+});
+</script>
+{% endblock %}
+{% endblock %}

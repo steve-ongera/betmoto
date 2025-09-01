@@ -1,3 +1,4 @@
+
 {% extends 'aviator/base.html' %}
 
 {% block title %}Play Aviator - BetMoto{% endblock %}
@@ -201,66 +202,568 @@
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <!-- Main Game Area -->
-    <div class="col-lg-8">
-        <div class="game-container">
-            <div class="game-canvas" id="gameCanvas">
-                <!-- Clouds for atmosphere -->
-                <div class="clouds">
-                    <div class="cloud" style="top: 20%; width: 80px; height: 40px; animation-delay: 0s;"></div>
-                    <div class="cloud" style="top: 60%; width: 60px; height: 30px; animation-delay: -5s;"></div>
-                    <div class="cloud" style="top: 40%; width: 100px; height: 50px; animation-delay: -10s;"></div>
+
+<!-- MAIN GAME PAGE -->
+<div class="container mt-4">
+    <!-- Alert Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <!-- Main Game Area -->
+        <div class="col-lg-8">
+            <div class="game-container">
+                <div class="game-canvas" id="gameCanvas">
+                    <!-- Clouds for atmosphere -->
+                    <div class="clouds">
+                        <div class="cloud" style="top: 20%; width: 80px; height: 40px; animation-delay: 0s;"></div>
+                        <div class="cloud" style="top: 60%; width: 60px; height: 30px; animation-delay: -5s;"></div>
+                        <div class="cloud" style="top: 40%; width: 100px; height: 50px; animation-delay: -10s;"></div>
+                    </div>
+                    
+                    <!-- Airplane -->
+                    <div class="airplane" id="airplane">✈️</div>
+                    
+                    <!-- Multiplier Display -->
+                    <div class="multiplier-display" id="multiplierDisplay">1.00x</div>
+                    
+                    <!-- Game Status -->
+                    <div class="game-status" id="gameStatus">Waiting for next round...</div>
+                    
+                    <!-- Countdown -->
+                    <div class="position-absolute top-50 start-50 translate-middle">
+                        <div class="countdown" id="countdown" style="display: none;"></div>
+                    </div>
                 </div>
                 
-                <!-- Airplane -->
-                <div class="airplane" id="airplane">✈️</div>
-                
-                <!-- Multiplier Display -->
-                <div class="multiplier-display" id="multiplierDisplay">1.00x</div>
-                
-                <!-- Game Status -->
-                <div class="game-status" id="gameStatus">Waiting for next round...</div>
-                
-                <!-- Countdown -->
-                <div class="position-absolute top-50 start-50 translate-middle">
-                    <div class="countdown" id="countdown" style="display: none;"></div>
+                <!-- Betting Panel -->
+                {% if user.is_authenticated %}
+                <div class="betting-panel mt-3">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-white">Bet Amount (KES)</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control bet-input" id="betAmount" 
+                                           min="1" step="1" value="10" placeholder="Enter bet amount">
+                                    <button class="btn btn-outline-light" type="button" onclick="setBetAmount(10)">10</button>
+                                    <button class="btn btn-outline-light" type="button" onclick="setBetAmount(50)">50</button>
+                                    <button class="btn btn-outline-light" type="button" onclick="setBetAmount(100)">100</button>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-white">Auto Cash Out (Optional)</label>
+                                <input type="number" class="form-control bet-input" id="autoCashOut" 
+                                       min="1.01" step="0.01" placeholder="e.g., 2.50">
+                            </div>
+                            
+                            <button class="btn btn-primary w-100 mb-2" id="placeBetBtn" onclick="placeBet()">
+                                <i class="fas fa-paper-plane"></i> Place Bet
+                            </button>
+                            
+                            <button class="btn cash-out-btn w-100" id="cashOutBtn" onclick="cashOut()" style="display: none;">
+                                <i class="fas fa-hand-paper"></i> Cash Out
+                            </button>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="balance-card">
+                                <h5><i class="fas fa-wallet"></i> Your Balance</h5>
+                                <h3 id="userBalance">KES {{ wallet.balance|default:"0.00" }}</h3>
+                                {% if wallet.bonus_balance > 0 %}
+                                    <p class="text-warning">Bonus: KES {{ wallet.bonus_balance }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            {% if user_stats %}
+                            <div class="mt-3">
+                                <h6>Your Stats</h6>
+                                <small class="text-light">
+                                    Games: {{ user_stats.total_games_played }} | 
+                                    Win Rate: {{ user_stats.win_rate }}% | 
+                                    Best: {{ user_stats.highest_multiplier }}x
+                                </small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="responsible-gambling">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Play Responsibly:</strong> Gambling can be addictive. Set limits and play within your means.
+                    </div>
+                </div>
+                {% else %}
+                <div class="betting-panel mt-3 text-center">
+                    <h4 class="text-white mb-3">Join the Action!</h4>
+                    <p class="text-light mb-4">Register or login to start playing Aviator</p>
+                    <a href="/register/" class="btn btn-primary me-2">
+                        <i class="fas fa-user-plus"></i> Register
+                    </a>
+                    <a href="/login/" class="btn btn-outline-light">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Live Statistics -->
+            <div class="stats-card mb-3">
+                <h5><i class="fas fa-chart-line"></i> Live Stats</h5>
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="h4 text-primary" id="onlinePlayers">0</div>
+                        <small>Online</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="h4 text-success" id="todaysGames">0</div>
+                        <small>Today's Games</small>
+                    </div>
                 </div>
             </div>
             
-            <!-- Betting Panel -->
-            {% if user.is_authenticated %}
-            <div class="betting-panel mt-3">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label text-white">Bet Amount (KES)</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control bet-input" id="betAmount" 
-                                       min="1" step="1" value="10" placeholder="Enter bet amount">
-                                <button class="btn btn-outline-light" type="button" onclick="setBetAmount(10)">10</button>
-                                <button class="btn btn-outline-light" type="button" onclick="setBetAmount(50)">50</button>
-                                <button class="btn btn-outline-light" type="button" onclick="setBetAmount(100)">100</button>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label text-white">Auto Cash Out (Optional)</label>
-                            <input type="number" class="form-control bet-input" id="autoCashOut" 
-                                   min="1.01" step="0.01" placeholder="e.g., 2.50">
-                        </div>
-                        
-                        <button class="btn btn-primary w-100 mb-2" id="placeBetBtn" onclick="placeBet()">
-                            <i class="fas fa-paper-plane"></i> Place Bet
-                        </button>
-                        
-                        <button class="btn cash-out-btn w-100" id="cashOutBtn" onclick="cashOut()" style="display: none;">
-                            <i class="fas fa-hand-paper"></i> Cash Out
-                        </button>
+            <!-- Game History -->
+            <div class="history-container">
+                <h5 class="text-white mb-3"><i class="fas fa-history"></i> Recent Results</h5>
+                <div id="gameHistory">
+                    {% for game in recent_games %}
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-secondary">
+                        <span class="text-light">Round {{ game.round_number }}</span>
+                        <span class="badge 
+                            {% if game.multiplier < 2 %}bg-danger{% elif game.multiplier < 10 %}bg-warning{% else %}bg-success{% endif %}">
+                            {{ game.multiplier }}x
+                        </span>
                     </div>
-                    
-                    <div class="col-md-6">
-                        <div class="balance-card">
-                            <h5><i class="fas fa-wallet"></i> Your Balance</h5>
-                            <h3 id="userBalance">KES {{ wallet.balance|default:"0.00" }}</h3>
-                            {% if wallet.bonus_balance > 0 %}
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Live Bets -->
+            {% if user.is_authenticated %}
+            <div class="live-bets mt-3">
+                <h5 class="text-white mb-3"><i class="fas fa-users"></i> Live Bets</h5>
+                <div id="liveBets">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Game state variables
+let currentGameState = null;
+let gameInterval = null;
+let multiplier = 1.00;
+let gameStatus = 'waiting';
+let userBet = null;
+let isFlying = false;
+
+// Initialize game
+document.addEventListener('DOMContentLoaded', function() {
+    startGameUpdates();
+    loadGameHistory();
+    updateLiveStats();
+    
+    // Update stats every 30 seconds
+    setInterval(updateLiveStats, 30000);
+});
+
+function startGameUpdates() {
+    gameInterval = setInterval(updateGameState, 1000);
+}
+
+async function updateGameState() {
+    try {
+        const response = await fetch('/api/game-state/');
+        const data = await response.json();
+        
+        if (data.error) {
+            console.error('Game state error:', data.error);
+            return;
+        }
+        
+        currentGameState = data;
+        updateGameDisplay(data);
+        updateLiveBets(data.bets);
+        
+    } catch (error) {
+        console.error('Error fetching game state:', error);
+    }
+}
+
+function updateGameDisplay(gameData) {
+    const game = gameData.game;
+    const statusEl = document.getElementById('gameStatus');
+    const multiplierEl = document.getElementById('multiplierDisplay');
+    const airplaneEl = document.getElementById('airplane');
+    const countdownEl = document.getElementById('countdown');
+    const placeBetBtn = document.getElementById('placeBetBtn');
+    const cashOutBtn = document.getElementById('cashOutBtn');
+    
+    gameStatus = game.status;
+    
+    switch (game.status) {
+        case 'waiting':
+            statusEl.textContent = 'Waiting for next round...';
+            statusEl.className = 'game-status text-info';
+            multiplierEl.textContent = '1.00x';
+            resetAirplane();
+            if (placeBetBtn) placeBetBtn.style.display = 'block';
+            if (cashOutBtn) cashOutBtn.style.display = 'none';
+            countdownEl.style.display = 'none';
+            break;
+            
+        case 'betting':
+            statusEl.textContent = 'Place your bets!';
+            statusEl.className = 'game-status text-warning';
+            multiplierEl.textContent = '1.00x';
+            resetAirplane();
+            if (placeBetBtn) placeBetBtn.style.display = 'block';
+            if (cashOutBtn) cashOutBtn.style.display = 'none';
+            
+            // Show countdown
+            if (game.betting_end_time) {
+                const endTime = new Date(game.betting_end_time);
+                const now = new Date();
+                const timeLeft = Math.max(0, Math.floor((endTime - now) / 1000));
+                
+                if (timeLeft > 0) {
+                    countdownEl.textContent = timeLeft;
+                    countdownEl.style.display = 'block';
+                } else {
+                    countdownEl.style.display = 'none';
+                }
+            }
+            break;
+            
+        case 'flying':
+            statusEl.textContent = 'Flying...';
+            statusEl.className = 'game-status text-success';
+            isFlying = true;
+            
+            // Animate multiplier
+            multiplier = game.multiplier || 1.00;
+            multiplierEl.textContent = multiplier.toFixed(2) + 'x';
+            
+            // Animate airplane
+            animateAirplane(multiplier);
+            
+            if (placeBetBtn) placeBetBtn.style.display = 'none';
+            
+            // Show cash out button if user has active bet
+            if (userBet && userBet.status === 'active') {
+                if (cashOutBtn) {
+                    cashOutBtn.style.display = 'block';
+                    cashOutBtn.textContent = `Cash Out ${multiplier.toFixed(2)}x`;
+                }
+            }
+            
+            countdownEl.style.display = 'none';
+            break;
+            
+        case 'crashed':
+            statusEl.textContent = `Crashed at ${game.multiplier}x`;
+            statusEl.className = 'game-status text-danger';
+            multiplierEl.textContent = game.multiplier.toFixed(2) + 'x';
+            
+            // Show crash effect
+            showCrashEffect();
+            
+            if (placeBetBtn) placeBetBtn.style.display = 'none';
+            if (cashOutBtn) cashOutBtn.style.display = 'none';
+            
+            isFlying = false;
+            userBet = null;
+            
+            setTimeout(() => {
+                if (placeBetBtn) placeBetBtn.style.display = 'block';
+            }, 3000);
+            break;
+    }
+}
+
+function resetAirplane() {
+    const airplaneEl = document.getElementById('airplane');
+    airplaneEl.style.bottom = '50px';
+    airplaneEl.style.left = '50px';
+    airplaneEl.style.transform = 'rotate(0deg)';
+}
+
+function animateAirplane(multiplier) {
+    const airplaneEl = document.getElementById('airplane');
+    const progress = Math.min(multiplier / 10, 1); // Cap at 10x for animation
+    
+    const x = 50 + (progress * 300);
+    const y = 50 + (progress * 200);
+    const rotation = progress * 45;
+    
+    airplaneEl.style.left = x + 'px';
+    airplaneEl.style.bottom = y + 'px';
+    airplaneEl.style.transform = `rotate(${rotation}deg)`;
+}
+
+function showCrashEffect() {
+    const canvas = document.getElementById('gameCanvas');
+    const crashEl = document.createElement('div');
+    crashEl.className = 'crash-effect';
+    crashEl.textContent = '💥 CRASHED!';
+    canvas.appendChild(crashEl);
+    
+    setTimeout(() => {
+        canvas.removeChild(crashEl);
+    }, 2000);
+}
+
+function setBetAmount(amount) {
+    document.getElementById('betAmount').value = amount;
+}
+
+async function placeBet() {
+    const betAmount = document.getElementById('betAmount').value;
+    const autoCashOut = document.getElementById('autoCashOut').value;
+    
+    if (!betAmount || betAmount < 1) {
+        alert('Please enter a valid bet amount');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/place-bet/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                amount: parseFloat(betAmount),
+                auto_cash_out: autoCashOut ? parseFloat(autoCashOut) : null
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            userBet = {
+                amount: parseFloat(betAmount),
+                auto_cash_out: autoCashOut ? parseFloat(autoCashOut) : null,
+                status: 'active'
+            };
+            
+            // Update balance
+            document.getElementById('userBalance').textContent = `KES ${data.new_balance.toFixed(2)}`;
+            
+            // Hide bet button
+            document.getElementById('placeBetBtn').style.display = 'none';
+            
+            alert('Bet placed successfully!');
+        } else {
+            alert(data.error || 'Failed to place bet');
+        }
+    } catch (error) {
+        console.error('Error placing bet:', error);
+        alert('Failed to place bet. Please try again.');
+    }
+}
+
+async function cashOut() {
+    if (!isFlying || !userBet) {
+        alert('No active bet to cash out');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/cash-out/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                multiplier: multiplier
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Update balance
+            document.getElementById('userBalance').textContent = `KES ${data.new_balance.toFixed(2)}`;
+            
+            // Hide cash out button
+            document.getElementById('cashOutBtn').style.display = 'none';
+            
+            alert(`Cashed out at ${data.multiplier.toFixed(2)}x! Won KES ${data.payout.toFixed(2)}`);
+            userBet = null;
+        } else {
+            alert(data.error || 'Failed to cash out');
+        }
+    } catch (error) {
+        console.error('Error cashing out:', error);
+        alert('Failed to cash out. Please try again.');
+    }
+}
+
+async function loadGameHistory() {
+    try {
+        const response = await fetch('/api/game-history/');
+        const data = await response.json();
+        
+        const historyEl = document.getElementById('gameHistory');
+        if (!historyEl) return;
+        
+        historyEl.innerHTML = '';
+        
+        data.history.slice(0, 10).forEach(game => {
+            const gameEl = document.createElement('div');
+            gameEl.className = 'd-flex justify-content-between align-items-center py-2 border-bottom border-secondary';
+            
+            let badgeClass = 'bg-danger';
+            if (game.multiplier >= 10) badgeClass = 'bg-success';
+            else if (game.multiplier >= 2) badgeClass = 'bg-warning';
+            
+            gameEl.innerHTML = `
+                <span class="text-light">Round ${game.round}</span>
+                <span class="badge ${badgeClass}">${game.multiplier.toFixed(2)}x</span>
+            `;
+            
+            historyEl.appendChild(gameEl);
+        });
+    } catch (error) {
+        console.error('Error loading game history:', error);
+    }
+}
+
+function updateLiveBets(bets) {
+    const liveBetsEl = document.getElementById('liveBets');
+    if (!liveBetsEl) return;
+    
+    liveBetsEl.innerHTML = '';
+    
+    bets.slice(0, 8).forEach(bet => {
+        const betEl = document.createElement('div');
+        betEl.className = `bet-item ${bet.status}`;
+        
+        let statusText = '';
+        if (bet.status === 'won') {
+            statusText = `Won ${bet.cash_out_at.toFixed(2)}x`;
+        } else if (bet.status === 'lost') {
+            statusText = 'Lost';
+        } else if (bet.status === 'cashed_out') {
+            statusText = `Cashed ${bet.cash_out_at.toFixed(2)}x`;
+        } else {
+            statusText = bet.auto_cash_out ? `Auto @${bet.auto_cash_out.toFixed(2)}x` : 'Active';
+        }
+        
+        betEl.innerHTML = `
+            <div>
+                <strong>${bet.username}</strong>
+                <br><small>KES ${bet.amount.toFixed(2)}</small>
+            </div>
+            <div class="text-end">
+                <small>${statusText}</small>
+                ${bet.payout > 0 ? `<br><strong class="text-success">+${bet.payout.toFixed(2)}</strong>` : ''}
+            </div>
+        `;
+        
+        liveBetsEl.appendChild(betEl);
+    });
+}
+
+async function updateLiveStats() {
+    try {
+        const response = await fetch('/api/live-stats/');
+        const data = await response.json();
+        
+        const onlineEl = document.getElementById('onlinePlayers');
+        const todaysEl = document.getElementById('todaysGames');
+        
+        if (onlineEl) onlineEl.textContent = data.online_players;
+        if (todaysEl) todaysEl.textContent = data.todays_games;
+        
+    } catch (error) {
+        console.error('Error updating live stats:', error);
+    }
+}
+
+async function updateUserBalance() {
+    if (!document.getElementById('userBalance')) return;
+    
+    try {
+        const response = await fetch('/api/user-balance/');
+        const data = await response.json();
+        
+        if (data.balance !== undefined) {
+            document.getElementById('userBalance').textContent = `KES ${data.balance.toFixed(2)}`;
+        }
+    } catch (error) {
+        console.error('Error updating balance:', error);
+    }
+}
+
+// Utility functions for page navigation (since this is a demo)
+function showPage(pageId) {
+    // Hide all pages
+    ['gameContainer', 'loginPage', 'registerPage', 'profilePage', 'depositPage', 'withdrawalPage', 'transactionsPage', 'leaderboardPage'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+    
+    // Show selected page
+    const pageEl = document.getElementById(pageId);
+    if (pageEl) pageEl.style.display = 'block';
+}
+
+// Demo function for testing
+function simulateGameRound() {
+    fetch('/api/simulate-round/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log(`Simulated round ${data.round} crashed at ${data.multiplier}x`);
+            }
+        })
+        .catch(error => console.error('Error simulating game:', error));
+}
+
+// Auto-update balance every 10 seconds
+setInterval(updateUserBalance, 10000);
+
+// Add some demo interactions
+document.addEventListener('click', function(e) {
+    if (e.target.textContent === 'Login') {
+        showPage('loginPage');
+    } else if (e.target.textContent === 'Register') {
+        showPage('registerPage');
+    } else if (e.target.textContent === 'Profile') {
+        showPage('profilePage');
+    } else if (e.target.textContent === 'Deposit') {
+        showPage('depositPage');
+    } else if (e.target.textContent === 'Withdraw') {
+        showPage('withdrawalPage');
+    } else if (e.target.textContent === 'Transactions') {
+        showPage('transactionsPage');
+    } else if (e.target.textContent === 'Leaderboard') {
+        showPage('leaderboardPage');
+    } else if (e.target.textContent === 'Play') {
+        showPage('gameContainer');
+    }
+});
+
+// Add warning about responsible gambling
+console.log('%cPlay Responsibly!', 'color: #ff6b6b; font-size: 16px; font-weight: bold;');
+console.log('Gambling can be addictive. Set limits and play within your means.');
+</script>
+
+
+{% endblock %}

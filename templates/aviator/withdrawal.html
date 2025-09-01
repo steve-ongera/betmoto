@@ -1,0 +1,352 @@
+{% extends 'aviator/base.html' %}
+
+{% block title %}Withdraw Funds - BetMoto Aviator{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <!-- Current Balance Display -->
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <h5 class="text-muted mb-2">Available Balance</h5>
+                <h2 class="text-success mb-0">KES {{ wallet.balance }}</h2>
+                {% if wallet.bonus_balance > 0 %}
+                <small class="text-info">Bonus Balance: KES {{ wallet.bonus_balance }}</small>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Withdrawal Form -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-minus-circle text-warning"></i> Withdraw Funds
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="post" id="withdrawalForm">
+                    {% csrf_token %}
+                    
+                    <!-- Payment Method Selection -->
+                    <div class="mb-4">
+                        <label for="{{ form.payment_method.id_for_label }}" class="form-label">
+                            <i class="fas fa-credit-card"></i> Withdrawal Method
+                        </label>
+                        {{ form.payment_method }}
+                        {% if form.payment_method.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.payment_method.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Quick Amount Buttons -->
+                    <div class="mb-3">
+                        <label class="form-label">Quick Select Amount</label>
+                        <div class="row g-2">
+                            <div class="col-4">
+                                <button type="button" class="btn btn-outline-warning w-100 quick-amount" data-amount="100">
+                                    KES 100
+                                </button>
+                            </div>
+                            <div class="col-4">
+                                <button type="button" class="btn btn-outline-warning w-100 quick-amount" data-amount="500">
+                                    KES 500
+                                </button>
+                            </div>
+                            <div class="col-4">
+                                <button type="button" class="btn btn-outline-warning w-100 quick-amount" data-amount="1000">
+                                    KES 1,000
+                                </button>
+                            </div>
+                            <div class="col-3">
+                                <button type="button" class="btn btn-outline-warning w-100 quick-amount" data-percentage="25">
+                                    25%
+                                </button>
+                            </div>
+                            <div class="col-3">
+                                <button type="button" class="btn btn-outline-warning w-100 quick-amount" data-percentage="50">
+                                    50%
+                                </button>
+                            </div>
+                            <div class="col-3">
+                                <button type="button" class="btn btn-outline-warning w-100 quick-amount" data-percentage="75">
+                                    75%
+                                </button>
+                            </div>
+                            <div class="col-3">
+                                <button type="button" class="btn btn-outline-danger w-100 quick-amount" data-percentage="100">
+                                    All
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Amount Input -->
+                    <div class="mb-3">
+                        <label for="{{ form.amount.id_for_label }}" class="form-label">
+                            <i class="fas fa-money-bill"></i> Withdrawal Amount
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-warning text-dark">KES</span>
+                            {{ form.amount }}
+                        </div>
+                        {% if form.amount.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.amount.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <div id="amount-limits" class="small text-muted mt-1"></div>
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div class="mb-4">
+                        <label for="{{ form.phone_number.id_for_label }}" class="form-label">
+                            <i class="fas fa-phone"></i> M-Pesa Phone Number
+                        </label>
+                        {{ form.phone_number }}
+                        {% if form.phone_number.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.phone_number.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <small class="text-muted">The number to receive the funds</small>
+                    </div>
+
+                    <!-- Fee Information -->
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Withdrawal Details:</strong>
+                        <div id="fee-breakdown" class="mt-2">
+                            <div class="d-flex justify-content-between">
+                                <span>Withdrawal Amount:</span>
+                                <span id="withdrawal-amount-display">KES 0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Processing Fee:</span>
+                                <span id="withdrawal-fee-display">KES 0.00</span>
+                            </div>
+                            <hr class="my-2">
+                            <div class="d-flex justify-content-between fw-bold">
+                                <span>You'll Receive:</span>
+                                <span id="net-amount-display">KES 0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Responsible Gaming Notice -->
+                    <div class="alert alert-info">
+                        <i class="fas fa-heart"></i>
+                        <strong>Withdrawal Notice:</strong> Withdrawals are processed within 24 hours. 
+                        Please ensure you're withdrawing responsibly and not chasing losses.
+                    </div>
+
+                    <button type="submit" class="btn btn-warning w-100 py-2" id="submitBtn">
+                        <i class="fas fa-minus"></i> Request Withdrawal
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Withdrawal Information -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-info-circle"></i> Withdrawal Information
+                </h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-warning">Processing Times:</h6>
+                        <ul class="small">
+                            <li>M-Pesa: Instant - 1 hour</li>
+                            <li>Bank Transfer: 1-3 business days</li>
+                            <li>Manual Review: Up to 24 hours</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-info">Requirements:</h6>
+                        <ul class="small">
+                            <li><i class="fas fa-check text-success"></i> Verified phone number</li>
+                            <li><i class="fas fa-check text-success"></i> KYC documentation</li>
+                            <li><i class="fas fa-check text-success"></i> Minimum withdrawal met</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="text-center">
+                    <small class="text-muted">
+                        <i class="fas fa-shield-alt"></i>
+                        All withdrawals are secure and monitored for your protection
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Support -->
+        <div class="card mt-4">
+            <div class="card-body text-center">
+                <h6>Need Help?</h6>
+                <p class="text-muted small mb-3">Our support team is available 24/7 to assist with withdrawals</p>
+                <button class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-headset"></i> Contact Support
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const amountInput = document.getElementById('{{ form.amount.id_for_label }}');
+    const paymentMethodSelect = document.getElementById('{{ form.payment_method.id_for_label }}');
+    const phoneInput = document.getElementById('{{ form.phone_number.id_for_label }}');
+    const submitBtn = document.getElementById('submitBtn');
+    const currentBalance = {{ wallet.balance }};
+    
+    // Payment method limits data
+    const paymentMethods = {
+        {% for method in payment_methods %}
+        '{{ method.id }}': {
+            name: '{{ method.name }}',
+            min_withdrawal: {{ method.min_withdrawal }},
+            max_withdrawal: {{ method.max_withdrawal }},
+            fee_percentage: {{ method.fee_percentage }}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    };
+
+    // Quick amount buttons
+    document.querySelectorAll('.quick-amount').forEach(btn => {
+        btn.addEventListener('click', function() {
+            let amount;
+            
+            if (this.dataset.amount) {
+                amount = parseFloat(this.dataset.amount);
+            } else if (this.dataset.percentage) {
+                const percentage = parseFloat(this.dataset.percentage);
+                amount = Math.floor(currentBalance * percentage / 100);
+            }
+            
+            // Don't exceed available balance
+            amount = Math.min(amount, currentBalance);
+            
+            amountInput.value = amount;
+            updateFeeCalculation();
+            
+            // Visual feedback
+            document.querySelectorAll('.quick-amount').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    // Update limits when payment method changes
+    paymentMethodSelect.addEventListener('change', function() {
+        updateLimitsDisplay();
+        updateFeeCalculation();
+    });
+
+    // Update fee calculation when amount changes
+    amountInput.addEventListener('input', function() {
+        // Prevent exceeding balance
+        const amount = parseFloat(this.value) || 0;
+        if (amount > currentBalance) {
+            this.value = currentBalance;
+            showToast('Amount cannot exceed available balance', 'warning');
+        }
+        updateFeeCalculation();
+    });
+
+    // Pre-fill phone number
+    if (phoneInput && '{{ user.phone_number }}') {
+        phoneInput.value = '{{ user.phone_number }}';
+    }
+
+    function updateLimitsDisplay() {
+        const selectedMethodId = paymentMethodSelect.value;
+        const limitsDiv = document.getElementById('amount-limits');
+        
+        if (selectedMethodId && paymentMethods[selectedMethodId]) {
+            const method = paymentMethods[selectedMethodId];
+            const maxWithdrawal = Math.min(method.max_withdrawal, currentBalance);
+            limitsDiv.innerHTML = `Limits: KES ${method.min_withdrawal.toFixed(2)} - KES ${maxWithdrawal.toLocaleString()}`;
+            
+            // Update amount input limits
+            amountInput.min = method.min_withdrawal;
+            amountInput.max = maxWithdrawal;
+        } else {
+            limitsDiv.innerHTML = '';
+        }
+    }
+
+    function updateFeeCalculation() {
+        const amount = parseFloat(amountInput.value) || 0;
+        const selectedMethodId = paymentMethodSelect.value;
+        
+        if (selectedMethodId && paymentMethods[selectedMethodId] && amount > 0) {
+            const method = paymentMethods[selectedMethodId];
+            const fee = (amount * method.fee_percentage / 100);
+            const netAmount = amount - fee;
+            
+            document.getElementById('withdrawal-amount-display').textContent = `KES ${amount.toFixed(2)}`;
+            document.getElementById('withdrawal-fee-display').textContent = `KES ${fee.toFixed(2)}`;
+            document.getElementById('net-amount-display').textContent = `KES ${netAmount.toFixed(2)}`;
+        } else {
+            document.getElementById('withdrawal-amount-display').textContent = 'KES 0.00';
+            document.getElementById('withdrawal-fee-display').textContent = 'KES 0.00';
+            document.getElementById('net-amount-display').textContent = 'KES 0.00';
+        }
+    }
+
+    // Form validation
+    document.getElementById('withdrawalForm').addEventListener('submit', function(e) {
+        const amount = parseFloat(amountInput.value) || 0;
+        const selectedMethodId = paymentMethodSelect.value;
+        
+        if (!selectedMethodId) {
+            e.preventDefault();
+            showToast('Please select a withdrawal method', 'warning');
+            return;
+        }
+        
+        if (amount <= 0) {
+            e.preventDefault();
+            showToast('Please enter a valid amount', 'warning');
+            return;
+        }
+        
+        if (amount > currentBalance) {
+            e.preventDefault();
+            showToast('Insufficient balance', 'danger');
+            return;
+        }
+        
+        if (paymentMethods[selectedMethodId]) {
+            const method = paymentMethods[selectedMethodId];
+            if (amount < method.min_withdrawal || amount > method.max_withdrawal) {
+                e.preventDefault();
+                showToast(`Amount must be between KES ${method.min_withdrawal} and KES ${method.max_withdrawal}`, 'warning');
+                return;
+            }
+        }
+        
+        // Confirmation dialog
+        if (!confirm(`Are you sure you want to withdraw KES ${amount.toFixed(2)}?`)) {
+            e.preventDefault();
+            return;
+        }
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="loading-spinner me-2"></span>Processing...';
+    });
+
+    // Initialize displays
+    updateLimitsDisplay();
+    updateFeeCalculation();
+});
+</script>
+{% endblock %}
+{% endblock %}
