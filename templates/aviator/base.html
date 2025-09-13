@@ -208,6 +208,40 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* Fix for navbar dropdown appearing behind other elements */
+
+        /* Method 1: Target the specific navbar */
+        .navbar-nav {
+            position: relative;
+            z-index: 1050; /* Bootstrap's navbar z-index is typically 1030, so use higher */
+        }
+
+        /* Method 2: Target the dropdown menus specifically */
+        .navbar-nav .dropdown-menu {
+            z-index: 1060;
+            position: absolute;
+        }
+
+        /* Method 3: More specific targeting for Bootstrap dropdowns */
+        .navbar-nav .dropdown-menu.show {
+            z-index: 1060;
+        }
+
+        /* Alternative: If you need even higher z-index values */
+        .navbar-nav {
+            z-index: 9999 !important;
+        }
+
+        .navbar-nav .dropdown-menu {
+            z-index: 10000 !important;
+        }
+
+        /* Ensure the parent navbar container also has proper stacking */
+        .navbar {
+            z-index: 1040;
+            position: relative;
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -407,6 +441,21 @@
             document.body.appendChild(container);
             return container;
         }
+
+        // Force dropdown to front when opened
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdowns = document.querySelectorAll('.navbar-nav .dropdown');
+            
+            dropdowns.forEach(dropdown => {
+                dropdown.addEventListener('show.bs.dropdown', function() {
+                    this.style.zIndex = '10000';
+                    const menu = this.querySelector('.dropdown-menu');
+                    if (menu) {
+                        menu.style.zIndex = '10001';
+                    }
+                });
+            });
+        });
     </script>
     {% block extra_js %}{% endblock %}
 </body>
