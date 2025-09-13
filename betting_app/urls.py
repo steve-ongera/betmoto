@@ -31,4 +31,25 @@ urlpatterns = [
     
     # Testing (remove in production)
     path('api/simulate-round/', views.simulate_game_round, name='simulate_round'),
+
+    # Admin Dashboard
+    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    
+    # System Control
+    path('admin-start-system/', views.start_system, name='admin_start_system'),
+    path('admin-stop-system/', views.stop_system, name='admin_stop_system'),
+    path('admin-force-crash/', views.force_crash, name='admin_force_crash'),
+    path('admin-toggle-maintenance/', views.toggle_maintenance, name='admin_toggle_maintenance'),
+    
+    # Settings
+    path('admin-update-settings/', views.update_settings, name='admin_update_settings'),
+    
+    # Data endpoints
+    path('admin-game-data/', views.game_data, name='admin_game_data'),
+    path('admin-system-logs/', views.system_logs, name='admin_system_logs'),
+    path('admin-player-management/', views.player_management, name='admin_player_management'),
+    path('admin-analytics-data/', views.analytics_data, name='admin_analytics_data'),
+    
+    # Player management
+    path('admin-suspend-player/', views.suspend_player, name='admin_suspend_player'),
 ]

@@ -732,3 +732,744 @@ def simulate_game_round(request):
         
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+# admin_views.py
+from django.shortcuts import render, redirect
+from django.contrib.admin.views.decorators import staff_member_required
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from django.db.models import Sum, Count, Avg, Q, Max
+from django.utils import timezone
+from django.db import transaction
+from decimal import Decimal
+import json
+import threading
+import time
+import random
+import hashlib
+from datetime import datetime, timedelta
+from django.core.cache import cache
+
+from .models import (
+    User, Wallet, Transaction, AviatorGame, AviatorBet, 
+    GameStatistics, UserGameStatistics, GameSettings,
+    SystemConfiguration, GameSession, AuditLog
+)
+
+class GameEngine:
+    """Main game engine for automated Aviator game management"""
+    
+    def __init__(self):
+        self.running = False
+        self.game_thread = None
+        self.current_game = None
+        self.settings = self.load_settings()
+        
+    def load_settings(self):
+        """Load game settings from database"""
+        try:
+            settings = GameSettings.objects.first()
+            if not settings:
+                settings = GameSettings.objects.create()
+            return {
+                'house_edge': float(settings.house_edge),
+                'betting_duration': settings.betting_phase_duration,
+                'game_interval': settings.game_interval,
+                'min_bet': float(settings.min_bet_amount),
+                'max_bet': float(settings.max_bet_amount),
+                'maintenance_mode': settings.is_maintenance_mode
+            }
+        except Exception as e:
+            return {
+                'house_edge': 3.0,
+                'betting_duration': 10,
+                'game_interval': 5,
+                'min_bet': 1.0,
+                'max_bet': 10000.0,
+                'maintenance_mode': False
+            }
+    
+    def start(self):
+        """Start the game engine"""
+        if self.running:
+            return False
+            
+        self.running = True
+        self.game_thread = threading.Thread(target=self._game_loop, daemon=True)
+        self.game_thread.start()
+        
+        # Log system start
+        self._log_event('SYSTEM_START', 'Game engine started')
+        return True
+    
+    def stop(self):
+        """Stop the game engine"""
+        self.running = False
+        if self.game_thread:
+            self.game_thread.join(timeout=5)
+        
+        # Complete any active game
+        if self.current_game and self.current_game.status in ['betting', 'flying']:
+            self._force_crash_game(self.current_game.id)
+        
+        self._log_event('SYSTEM_STOP', 'Game engine stopped')
+        return True
+    
+    def force_crash(self):
+        """Force crash current game"""
+        if self.current_game and self.current_game.status == 'flying':
+            self._force_crash_game(self.current_game.id)
+            return True
+        return False
+    
+    def update_settings(self, new_settings):
+        """Update game settings"""
+        self.settings.update(new_settings)
+        
+        # Update database
+        game_settings = GameSettings.objects.first()
+        if game_settings:
+            game_settings.house_edge = Decimal(str(new_settings.get('house_edge', 3.0)))
+            game_settings.betting_phase_duration = new_settings.get('betting_duration', 10)
+            game_settings.game_interval = new_settings.get('game_interval', 5)
+            game_settings.save()
+        
+        self._log_event('SETTINGS_UPDATE', f'Settings updated: {new_settings}')
+    
+    def _game_loop(self):
+        """Main game loop - runs continuously"""
+        while self.running:
+            try:
+                if self.settings.get('maintenance_mode', False):
+                    time.sleep(5)
+                    continue
+                
+                # Start new game
+                game = self._start_new_game()
+                if not game:
+                    time.sleep(1)
+                    continue
+                
+                self.current_game = game
+                
+                # Betting phase
+                self._log_event('GAME_START', f'Round {game.round_number} - Betting phase started')
+                time.sleep(self.settings['betting_duration'])
+                
+                if not self.running:
+                    break
+                
+                # End betting, start flying
+                game = self._start_flying_phase(game.id)
+                if not game:
+                    continue
+                
+                # Flying phase with crash calculation
+                crash_multiplier, flight_time = self._calculate_crash_point()
+                self._log_event('GAME_FLYING', f'Round {game.round_number} - Flying (will crash at {crash_multiplier}x)')
+                
+                # Simulate flight
+                start_time = time.time()
+                multiplier = 1.0
+                
+                while self.running and multiplier < crash_multiplier:
+                    elapsed = time.time() - start_time
+                    multiplier = self._calculate_current_multiplier(elapsed, crash_multiplier, flight_time)
+                    
+                    # Update game state in cache for real-time updates
+                    cache.set(f'game_{game.id}_multiplier', multiplier, 60)
+                    
+                    # Check for manual cash outs
+                    self._process_auto_cashouts(game.id, multiplier)
+                    
+                    time.sleep(0.1)  # 100ms updates
+                
+                if not self.running:
+                    break
+                
+                # Crash the game
+                self._crash_game(game.id, crash_multiplier)
+                self._log_event('GAME_CRASH', f'Round {game.round_number} - Crashed at {crash_multiplier}x')
+                
+                # Wait before next game
+                time.sleep(self.settings['game_interval'])
+                
+            except Exception as e:
+                self._log_event('ERROR', f'Game loop error: {str(e)}')
+                time.sleep(5)
+    
+    def _start_new_game(self):
+        """Create a new game round"""
+        try:
+            with transaction.atomic():
+                # Get last round number
+                last_round = AviatorGame.objects.aggregate(
+                    max_round=Max('round_number')
+                )['max_round'] or 0
+                
+                # Generate provably fair seed
+                seed = hashlib.md5(f"{time.time()}_{random.random()}".encode()).hexdigest()
+                hash_value = hashlib.sha256(seed.encode()).hexdigest()
+                
+                game = AviatorGame.objects.create(
+                    round_number=last_round + 1,
+                    status='betting',
+                    start_time=timezone.now(),
+                    betting_end_time=timezone.now() + timedelta(seconds=self.settings['betting_duration']),
+                    seed=seed,
+                    hash_value=hash_value
+                )
+                
+                return game
+        except Exception as e:
+            self._log_event('ERROR', f'Failed to create game: {str(e)}')
+            return None
+    
+    def _start_flying_phase(self, game_id):
+        """Transition game from betting to flying"""
+        try:
+            game = AviatorGame.objects.get(id=game_id)
+            game.status = 'flying'
+            game.save()
+            return game
+        except AviatorGame.DoesNotExist:
+            return None
+    
+    def _calculate_crash_point(self):
+        """Calculate when the game will crash using house edge"""
+        # Provably fair crash calculation
+        # This is simplified - in production, use cryptographic methods
+        
+        house_edge = self.settings['house_edge'] / 100
+        
+        # Generate random number
+        rand = random.random()
+        
+        # Apply house edge to crash calculation
+        # Higher house edge = more low multipliers
+        if rand < (0.5 + house_edge):  # Increased probability of low crashes
+            crash_multiplier = round(1.0 + random.random() * 1.5, 2)  # 1.0x - 2.5x
+            flight_time = crash_multiplier * 0.8
+        elif rand < (0.8 + house_edge/2):
+            crash_multiplier = round(2.5 + random.random() * 5.0, 2)  # 2.5x - 7.5x
+            flight_time = crash_multiplier * 0.6
+        elif rand < (0.95 + house_edge/4):
+            crash_multiplier = round(7.5 + random.random() * 15.0, 2)  # 7.5x - 22.5x
+            flight_time = crash_multiplier * 0.4
+        else:
+            crash_multiplier = round(22.5 + random.random() * 77.5, 2)  # 22.5x - 100x
+            flight_time = crash_multiplier * 0.3
+        
+        return crash_multiplier, max(flight_time, 1.0)
+    
+    def _calculate_current_multiplier(self, elapsed_time, target_multiplier, flight_time):
+        """Calculate current multiplier based on elapsed time"""
+        if elapsed_time >= flight_time:
+            return target_multiplier
+        
+        # Exponential growth curve
+        progress = elapsed_time / flight_time
+        return 1.0 + (target_multiplier - 1.0) * progress
+    
+    def _process_auto_cashouts(self, game_id, current_multiplier):
+        """Process automatic cash outs"""
+        try:
+            # Get bets with auto cash out at current multiplier
+            bets_to_cash_out = AviatorBet.objects.filter(
+                game_id=game_id,
+                status='active',
+                auto_cash_out_at__lte=Decimal(str(current_multiplier)),
+                auto_cash_out_at__isnull=False
+            )
+            
+            for bet in bets_to_cash_out:
+                self._process_cashout(bet, bet.auto_cash_out_at)
+                
+        except Exception as e:
+            self._log_event('ERROR', f'Auto cashout error: {str(e)}')
+    
+    def _process_cashout(self, bet, multiplier):
+        """Process individual bet cashout"""
+        try:
+            with transaction.atomic():
+                payout = bet.bet_amount * multiplier
+                
+                # Update bet
+                bet.status = 'won'
+                bet.cash_out_multiplier = multiplier
+                bet.payout_amount = payout
+                bet.cashed_out_at = timezone.now()
+                bet.save()
+                
+                # Add to wallet
+                wallet = bet.user.wallet
+                wallet.balance += payout
+                wallet.save()
+                
+                # Create transaction
+                Transaction.objects.create(
+                    user=bet.user,
+                    transaction_type='win',
+                    amount=payout,
+                    status='completed',
+                    reference=f"WIN_{bet.id}",
+                    description=f"Win from Round {bet.game.round_number} at {multiplier}x"
+                )
+                
+                self._log_event('CASHOUT', f'{bet.user.username} cashed out {payout} at {multiplier}x')
+        except Exception as e:
+            self._log_event('ERROR', f'Cashout error: {str(e)}')
+    
+    def _crash_game(self, game_id, crash_multiplier):
+        """Crash the game and process all remaining bets"""
+        try:
+            with transaction.atomic():
+                game = AviatorGame.objects.get(id=game_id)
+                game.status = 'crashed'
+                game.multiplier = Decimal(str(crash_multiplier))
+                game.crash_time = timezone.now()
+                game.save()
+                
+                # Process remaining active bets (losers)
+                losing_bets = AviatorBet.objects.filter(
+                    game=game,
+                    status='active'
+                )
+                
+                total_bet_amount = Decimal('0.00')
+                total_payout = Decimal('0.00')
+                
+                for bet in losing_bets:
+                    bet.status = 'lost'
+                    bet.save()
+                    total_bet_amount += bet.bet_amount
+                    
+                    # Update user stats for loss
+                    self._update_user_stats(bet.user, bet.bet_amount, Decimal('0.00'), False)
+                
+                # Calculate payouts for winners
+                winning_bets = AviatorBet.objects.filter(
+                    game=game,
+                    status='won'
+                )
+                
+                for bet in winning_bets:
+                    total_payout += bet.payout_amount
+                    # Update user stats for win
+                    self._update_user_stats(bet.user, bet.bet_amount, bet.payout_amount, True)
+                
+                # Create game statistics
+                GameStatistics.objects.create(
+                    game=game,
+                    total_bets=AviatorBet.objects.filter(game=game).count(),
+                    total_bet_amount=total_bet_amount + sum(bet.bet_amount for bet in winning_bets),
+                    total_payout=total_payout,
+                    unique_players=AviatorBet.objects.filter(game=game).values('user').distinct().count(),
+                    highest_bet=AviatorBet.objects.filter(game=game).aggregate(
+                        max_bet=Max('bet_amount')
+                    )['max_bet'] or Decimal('0.00')
+                )
+                
+                # Mark game as completed
+                game.status = 'completed'
+                game.save()
+                
+                # Clear cache
+                cache.delete(f'game_{game.id}_multiplier')
+                
+        except Exception as e:
+            self._log_event('ERROR', f'Game crash error: {str(e)}')
+    
+    def _force_crash_game(self, game_id):
+        """Force crash current game"""
+        current_multiplier = cache.get(f'game_{game_id}_multiplier', 1.0)
+        self._crash_game(game_id, max(current_multiplier, 1.0))
+    
+    def _update_user_stats(self, user, bet_amount, payout, won):
+        """Update user game statistics"""
+        try:
+            stats, created = UserGameStatistics.objects.get_or_create(user=user)
+            
+            stats.total_games_played += 1
+            stats.total_amount_bet += bet_amount
+            
+            if won:
+                stats.games_won += 1
+                stats.total_winnings += payout
+                if payout > stats.biggest_win:
+                    stats.biggest_win = payout
+            else:
+                stats.games_lost += 1
+            
+            # Calculate win rate
+            if stats.total_games_played > 0:
+                stats.win_rate = (stats.games_won / stats.total_games_played) * 100
+            
+            stats.save()
+        except Exception as e:
+            self._log_event('ERROR', f'Stats update error: {str(e)}')
+    
+    def _log_event(self, event_type, message):
+        """Log system events"""
+        try:
+            AuditLog.objects.create(
+                action_type='system_event',
+                description=f'{event_type}: {message}',
+                ip_address='127.0.0.1',
+                additional_data={'event_type': event_type}
+            )
+        except Exception:
+            pass  # Don't let logging errors crash the system
+
+# Global game engine instance
+game_engine = GameEngine()
+
+@staff_member_required
+def admin_dashboard(request):
+    """Main admin dashboard view"""
+    # Get basic statistics
+    today = timezone.now().date()
+    
+    stats = {
+        'total_users': User.objects.count(),
+        'active_games_today': AviatorGame.objects.filter(
+            created_at__date=today
+        ).count(),
+        'total_revenue_today': Transaction.objects.filter(
+            transaction_type='bet',
+            created_at__date=today,
+            status='completed'
+        ).aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00'),
+        'active_players': GameSession.objects.filter(
+            end_time__isnull=True,
+            start_time__gte=timezone.now() - timedelta(minutes=30)
+        ).count()
+    }
+    
+    # Get current game
+    current_game = AviatorGame.objects.filter(
+        status__in=['waiting', 'betting', 'flying']
+    ).first()
+    
+    # Get recent games
+    recent_games = AviatorGame.objects.filter(
+        status='completed'
+    ).order_by('-round_number')[:10]
+    
+    context = {
+        'stats': stats,
+        'current_game': current_game,
+        'recent_games': recent_games,
+        'engine_running': game_engine.running,
+        'game_settings': game_engine.settings
+    }
+    
+    return render(request, 'admin/aviator_dashboard.html', context)
+
+@csrf_exempt
+@staff_member_required
+@require_http_methods(["POST"])
+def start_system(request):
+    """Start the game engine"""
+    try:
+        success = game_engine.start()
+        if success:
+            return JsonResponse({'status': 'success', 'message': 'System started'})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'System already running'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+@csrf_exempt
+@staff_member_required
+@require_http_methods(["POST"])
+def stop_system(request):
+    """Stop the game engine"""
+    try:
+        success = game_engine.stop()
+        if success:
+            return JsonResponse({'status': 'success', 'message': 'System stopped'})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'System not running'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+@csrf_exempt
+@staff_member_required
+@require_http_methods(["POST"])
+def force_crash(request):
+    """Force crash current game"""
+    try:
+        success = game_engine.force_crash()
+        if success:
+            return JsonResponse({'status': 'success', 'message': 'Game crashed'})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'No active game to crash'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+@csrf_exempt
+@staff_member_required
+@require_http_methods(["POST"])
+def update_settings(request):
+    """Update game settings"""
+    try:
+        data = json.loads(request.body)
+        game_engine.update_settings(data)
+        return JsonResponse({'status': 'success', 'message': 'Settings updated'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+@staff_member_required
+def game_data(request):
+    """Get real-time game data for dashboard"""
+    try:
+        # Current game data
+        current_game = AviatorGame.objects.filter(
+            status__in=['waiting', 'betting', 'flying']
+        ).first()
+        
+        game_data = {}
+        if current_game:
+            # Get current multiplier from cache if flying
+            current_multiplier = 1.0
+            if current_game.status == 'flying':
+                current_multiplier = cache.get(f'game_{current_game.id}_multiplier', 1.0)
+            
+            # Get bets for current game
+            current_bets = AviatorBet.objects.filter(game=current_game)
+            total_bet_amount = current_bets.aggregate(Sum('bet_amount'))['bet_amount__sum'] or Decimal('0.00')
+            
+            game_data = {
+                'id': str(current_game.id),
+                'round_number': current_game.round_number,
+                'status': current_game.status,
+                'multiplier': round(current_multiplier, 2),
+                'player_count': current_bets.count(),
+                'total_bets': float(total_bet_amount),
+                'start_time': current_game.start_time.isoformat() if current_game.start_time else None
+            }
+        
+        # Statistics
+        today = timezone.now().date()
+        stats = {
+            'total_revenue': float(Transaction.objects.filter(
+                transaction_type='bet',
+                status='completed'
+            ).aggregate(Sum('amount'))['amount__sum'] or 0),
+            'active_players': GameSession.objects.filter(
+                end_time__isnull=True,
+                start_time__gte=timezone.now() - timedelta(minutes=30)
+            ).count(),
+            'games_today': AviatorGame.objects.filter(
+                created_at__date=today,
+                status='completed'
+            ).count(),
+            'house_profit': float(
+                (Transaction.objects.filter(transaction_type='bet', status='completed').aggregate(
+                    Sum('amount'))['amount__sum'] or 0) -
+                (Transaction.objects.filter(transaction_type='win', status='completed').aggregate(
+                    Sum('amount'))['amount__sum'] or 0)
+            )
+        }
+        
+        # Live bets
+        live_bets = []
+        if current_game:
+            bets = AviatorBet.objects.filter(
+                game=current_game,
+                status='active'
+            ).select_related('user')[:10]
+            
+            live_bets = [{
+                'username': bet.user.username,
+                'amount': float(bet.bet_amount),
+                'auto_cash_out': float(bet.auto_cash_out_at) if bet.auto_cash_out_at else None
+            } for bet in bets]
+        
+        # Game history
+        recent_games = AviatorGame.objects.filter(
+            status='completed'
+        ).order_by('-round_number')[:20]
+        
+        history = []
+        for game in recent_games:
+            stats_obj = GameStatistics.objects.filter(game=game).first()
+            history.append({
+                'round': game.round_number,
+                'multiplier': float(game.multiplier) if game.multiplier else 0,
+                'players': stats_obj.total_bets if stats_obj else 0,
+                'total_bets': float(stats_obj.total_bet_amount) if stats_obj else 0,
+                'total_payout': float(stats_obj.total_payout) if stats_obj else 0,
+                'house_profit': float(stats_obj.total_bet_amount - stats_obj.total_payout) if stats_obj else 0,
+                'timestamp': game.crash_time.isoformat() if game.crash_time else game.created_at.isoformat()
+            })
+        
+        return JsonResponse({
+            'current_game': game_data,
+            'stats': stats,
+            'live_bets': live_bets,
+            'history': history,
+            'engine_status': 'running' if game_engine.running else 'stopped'
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@staff_member_required
+def system_logs(request):
+    """Get system logs"""
+    logs = AuditLog.objects.filter(
+        action_type='system_event'
+    ).order_by('-created_at')[:100]
+    
+    log_data = [{
+        'timestamp': log.created_at.isoformat(),
+        'message': log.description,
+        'type': log.additional_data.get('event_type', 'info') if log.additional_data else 'info'
+    } for log in logs]
+    
+    return JsonResponse({'logs': log_data})
+
+@staff_member_required
+def player_management(request):
+    """Get player data for management"""
+    players = User.objects.filter(
+        is_active=True
+    ).select_related('wallet').order_by('-date_joined')[:50]
+    
+    player_data = []
+    for player in players:
+        try:
+            wallet = player.wallet if hasattr(player, 'wallet') else None
+            stats = getattr(player, 'game_stats', None)
+            
+            player_data.append({
+                'id': player.id,
+                'username': player.username,
+                'email': player.email,
+                'balance': float(wallet.balance) if wallet else 0,
+                'total_bets': float(stats.total_amount_bet) if stats else 0,
+                'total_winnings': float(stats.total_winnings) if stats else 0,
+                'games_played': stats.total_games_played if stats else 0,
+                'win_rate': float(stats.win_rate) if stats else 0,
+                'status': 'active' if player.is_active else 'inactive',
+                'joined_date': player.date_joined.isoformat(),
+                'kyc_status': getattr(player, 'kyc_status', 'pending')
+            })
+        except Exception as e:
+            continue
+    
+    return JsonResponse({'players': player_data})
+
+@csrf_exempt
+@staff_member_required
+@require_http_methods(["POST"])
+def toggle_maintenance(request):
+    """Toggle maintenance mode"""
+    try:
+        settings = GameSettings.objects.first()
+        if settings:
+            settings.is_maintenance_mode = not settings.is_maintenance_mode
+            settings.save()
+            
+            game_engine.settings['maintenance_mode'] = settings.is_maintenance_mode
+            
+            status = 'enabled' if settings.is_maintenance_mode else 'disabled'
+            return JsonResponse({
+                'status': 'success', 
+                'message': f'Maintenance mode {status}',
+                'maintenance_mode': settings.is_maintenance_mode
+            })
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Settings not found'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+@csrf_exempt
+@staff_member_required
+@require_http_methods(["POST"])
+def suspend_player(request):
+    """Suspend a player"""
+    try:
+        data = json.loads(request.body)
+        user_id = data.get('user_id')
+        
+        user = User.objects.get(id=user_id)
+        user.is_active = False
+        user.save()
+        
+        # Log the action
+        AuditLog.objects.create(
+            user=request.user,
+            action_type='account_suspended',
+            description=f'Player {user.username} suspended by admin',
+            ip_address=request.META.get('REMOTE_ADDR', '127.0.0.1'),
+            additional_data={'suspended_user_id': user_id}
+        )
+        
+        return JsonResponse({'status': 'success', 'message': 'Player suspended'})
+    except User.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'User not found'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+@staff_member_required
+def analytics_data(request):
+    """Get analytics data for charts"""
+    try:
+        # Revenue data for last 24 hours
+        now = timezone.now()
+        hours_ago_24 = now - timedelta(hours=24)
+        
+        revenue_data = []
+        for i in range(24):
+            hour_start = hours_ago_24 + timedelta(hours=i)
+            hour_end = hour_start + timedelta(hours=1)
+            
+            revenue = Transaction.objects.filter(
+                transaction_type='bet',
+                status='completed',
+                created_at__gte=hour_start,
+                created_at__lt=hour_end
+            ).aggregate(Sum('amount'))['amount__sum'] or 0
+            
+            revenue_data.append({
+                'hour': hour_start.strftime('%H:%M'),
+                'revenue': float(revenue)
+            })
+        
+        # Multiplier distribution
+        recent_games = AviatorGame.objects.filter(
+            status='completed',
+            multiplier__isnull=False,
+            created_at__gte=now - timedelta(days=7)
+        ).values_list('multiplier', flat=True)
+        
+        multiplier_distribution = {
+            'low': 0,      # < 2x
+            'medium': 0,   # 2x - 5x  
+            'high': 0,     # 5x - 10x
+            'extreme': 0   # > 10x
+        }
+        
+        for multiplier in recent_games:
+            multiplier = float(multiplier)
+            if multiplier < 2:
+                multiplier_distribution['low'] += 1
+            elif multiplier < 5:
+                multiplier_distribution['medium'] += 1
+            elif multiplier < 10:
+                multiplier_distribution['high'] += 1
+            else:
+                multiplier_distribution['extreme'] += 1
+        
+        return JsonResponse({
+            'revenue_data': revenue_data,
+            'multiplier_distribution': multiplier_distribution
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

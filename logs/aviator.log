@@ -1,0 +1,533 @@
+Watching for file changes with StatReloader
+D:\BACKUP\Complete Projects\betmoto\betting_app\urls.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /admin/betting_app/aviatorgame/1e276fff-1ced-45c6-8e69-c4c4da430fe1/change/ HTTP/1.1" 200 27047
+"GET /admin-dashboard/ HTTP/1.1" 200 29685
+"GET /static/admin/dashboard.css HTTP/1.1" 404 1984
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+Not Found: /admin/game-data/
+"GET /admin/game-data/ HTTP/1.1" 404 11493
+"GET /admin-dashboard/ HTTP/1.1" 200 29685
+"GET /static/admin/dashboard.css HTTP/1.1" 404 1984
+"GET /admin-game-data/ HTTP/1.1" 200 334
+"GET /admin-game-data/ HTTP/1.1" 200 334
+"GET /admin-game-data/ HTTP/1.1" 200 334
+"GET /admin-game-data/ HTTP/1.1" 200 334
+"GET /admin-game-data/ HTTP/1.1" 200 334
+"GET /admin-game-data/ HTTP/1.1" 200 334
+"GET /admin-game-data/ HTTP/1.1" 200 334
+"POST /admin-start-system/ HTTP/1.1" 200 50
+"GET /admin-game-data/ HTTP/1.1" 200 364
+"GET /admin-game-data/ HTTP/1.1" 200 364
+"GET /admin-game-data/ HTTP/1.1" 200 364
+"GET /admin-game-data/ HTTP/1.1" 200 364
+"GET /admin-game-data/ HTTP/1.1" 200 364
+"GET /admin-game-data/ HTTP/1.1" 200 364
+"GET /admin-game-data/ HTTP/1.1" 200 364
+"GET /admin-game-data/ HTTP/1.1" 200 365
+"GET /admin-game-data/ HTTP/1.1" 200 365
+"GET /admin-game-data/ HTTP/1.1" 200 491
+"GET /admin-game-data/ HTTP/1.1" 200 491
+"GET /admin-game-data/ HTTP/1.1" 200 491
+"GET /admin-game-data/ HTTP/1.1" 200 521
+"GET /admin-game-data/ HTTP/1.1" 200 521
+"GET /admin-game-data/ HTTP/1.1" 200 521
+"GET /admin-game-data/ HTTP/1.1" 200 521
+"GET /admin-game-data/ HTTP/1.1" 200 521
+"GET /admin-game-data/ HTTP/1.1" 200 521
+"GET / HTTP/1.1" 200 39936
+"GET /api/game-history/ HTTP/1.1" 200 116
+"GET /api/live-stats/ HTTP/1.1" 200 107
+"GET /api/game-state/ HTTP/1.1" 200 380
+"GET /admin-game-data/ HTTP/1.1" 200 521
+"GET /api/game-state/ HTTP/1.1" 200 380
+"GET /api/game-state/ HTTP/1.1" 200 404
+"GET /admin-game-data/ HTTP/1.1" 200 649
+"GET /api/game-state/ HTTP/1.1" 200 404
+"GET /api/game-state/ HTTP/1.1" 200 404
+"GET /admin-game-data/ HTTP/1.1" 200 649
+"GET /api/game-state/ HTTP/1.1" 200 404
+"GET /api/game-state/ HTTP/1.1" 200 404
+"GET /admin-game-data/ HTTP/1.1" 200 649
+"GET /api/game-state/ HTTP/1.1" 200 404
+"GET /api/game-state/ HTTP/1.1" 200 464
+"GET /admin-game-data/ HTTP/1.1" 200 679
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/game-state/ HTTP/1.1" 200 464
+"GET /api/game-state/ HTTP/1.1" 200 464
+"GET /admin-game-data/ HTTP/1.1" 200 679
+"GET /api/game-state/ HTTP/1.1" 200 464
+"GET /api/game-state/ HTTP/1.1" 200 464
+"GET /admin-game-data/ HTTP/1.1" 200 679
+"GET /api/game-state/ HTTP/1.1" 200 464
+"GET /api/game-state/ HTTP/1.1" 200 464
+"GET /admin-game-data/ HTTP/1.1" 200 679
+"GET /api/game-state/ HTTP/1.1" 200 464
+"GET /api/game-state/ HTTP/1.1" 200 464
+"GET /admin-game-data/ HTTP/1.1" 200 679
+"GET /api/game-state/ HTTP/1.1" 200 464
+"GET /api/game-state/ HTTP/1.1" 200 463
+"GET /admin-game-data/ HTTP/1.1" 200 678
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/game-state/ HTTP/1.1" 200 463
+"GET /api/game-state/ HTTP/1.1" 200 463
+"GET /admin-game-data/ HTTP/1.1" 200 807
+"GET /api/game-state/ HTTP/1.1" 200 487
+"GET /api/game-state/ HTTP/1.1" 200 487
+"GET /admin-game-data/ HTTP/1.1" 200 807
+"GET /api/game-state/ HTTP/1.1" 200 487
+"GET /api/game-state/ HTTP/1.1" 200 487
+"GET /admin-game-data/ HTTP/1.1" 200 807
+"GET /api/game-state/ HTTP/1.1" 200 487
+"GET /api/game-state/ HTTP/1.1" 200 547
+"GET /admin-game-data/ HTTP/1.1" 200 837
+"GET /api/game-state/ HTTP/1.1" 200 547
+"GET /api/game-state/ HTTP/1.1" 200 547
+"GET /admin-game-data/ HTTP/1.1" 200 837
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/game-state/ HTTP/1.1" 200 547
+"GET /api/live-stats/ HTTP/1.1" 200 107
+"GET /api/game-state/ HTTP/1.1" 200 547
+"GET /admin-game-data/ HTTP/1.1" 200 837
+"GET /api/game-state/ HTTP/1.1" 200 547
+"GET /api/game-state/ HTTP/1.1" 200 547
+"GET /admin-game-data/ HTTP/1.1" 200 837
+"GET /api/game-state/ HTTP/1.1" 200 547
+"GET /api/game-state/ HTTP/1.1" 200 547
+"GET /admin-game-data/ HTTP/1.1" 200 837
+"GET /api/game-state/ HTTP/1.1" 200 547
+"GET /api/game-state/ HTTP/1.1" 200 547
+"GET /admin-game-data/ HTTP/1.1" 200 836
+"GET /api/game-state/ HTTP/1.1" 200 546
+"GET /api/game-state/ HTTP/1.1" 200 570
+"GET /admin-game-data/ HTTP/1.1" 200 965
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/game-state/ HTTP/1.1" 200 570
+"GET /api/game-state/ HTTP/1.1" 200 570
+"GET /admin-game-data/ HTTP/1.1" 200 965
+"GET /api/game-state/ HTTP/1.1" 200 570
+"GET /api/game-state/ HTTP/1.1" 200 570
+"GET /admin-game-data/ HTTP/1.1" 200 965
+"GET /api/game-state/ HTTP/1.1" 200 570
+"GET /api/game-state/ HTTP/1.1" 200 630
+"GET /admin-game-data/ HTTP/1.1" 200 995
+"GET /api/game-state/ HTTP/1.1" 200 630
+"GET /api/game-state/ HTTP/1.1" 200 630
+"GET /admin-game-data/ HTTP/1.1" 200 995
+"GET /api/game-state/ HTTP/1.1" 200 630
+"GET /api/game-state/ HTTP/1.1" 200 630
+"GET /admin-game-data/ HTTP/1.1" 200 995
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/game-state/ HTTP/1.1" 200 630
+"GET /api/game-state/ HTTP/1.1" 200 630
+"GET /admin-game-data/ HTTP/1.1" 200 995
+"GET /api/game-state/ HTTP/1.1" 200 630
+"GET /api/game-state/ HTTP/1.1" 200 630
+"GET /admin-game-data/ HTTP/1.1" 200 995
+"GET /api/game-state/ HTTP/1.1" 200 630
+"GET /api/game-state/ HTTP/1.1" 200 629
+"GET /admin-game-data/ HTTP/1.1" 200 994
+"GET /api/game-state/ HTTP/1.1" 200 629
+"GET /api/game-state/ HTTP/1.1" 200 629
+"GET /admin-game-data/ HTTP/1.1" 200 1123
+"GET /api/game-state/ HTTP/1.1" 200 653
+"GET /api/game-state/ HTTP/1.1" 200 653
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/game-state/ HTTP/1.1" 200 653
+"GET /api/live-stats/ HTTP/1.1" 200 107
+"GET /api/game-state/ HTTP/1.1" 200 653
+"GET /api/game-state/ HTTP/1.1" 200 653
+"GET /api/game-state/ HTTP/1.1" 200 713
+"GET /api/game-state/ HTTP/1.1" 200 713
+"GET /api/game-state/ HTTP/1.1" 200 713
+"GET /api/game-state/ HTTP/1.1" 200 713
+"GET /api/game-state/ HTTP/1.1" 200 713
+"GET /api/game-state/ HTTP/1.1" 200 713
+"GET /api/game-state/ HTTP/1.1" 200 713
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/game-state/ HTTP/1.1" 200 713
+"GET /api/game-state/ HTTP/1.1" 200 713
+"GET /api/game-state/ HTTP/1.1" 200 713
+"GET /admin-game-data/ HTTP/1.1" 200 1153
+"GET /api/game-state/ HTTP/1.1" 200 713
+"GET /api/game-state/ HTTP/1.1" 200 712
+"GET /admin-game-data/ HTTP/1.1" 200 1153
+"GET /api/game-state/ HTTP/1.1" 200 712
+"GET /api/game-state/ HTTP/1.1" 200 712
+"GET /admin-game-data/ HTTP/1.1" 200 1152
+"GET /api/game-state/ HTTP/1.1" 200 712
+"GET /api/game-state/ HTTP/1.1" 200 736
+"GET /admin-game-data/ HTTP/1.1" 200 1281
+"GET /api/game-state/ HTTP/1.1" 200 736
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/game-state/ HTTP/1.1" 200 736
+"GET /admin-game-data/ HTTP/1.1" 200 1281
+"GET /api/game-state/ HTTP/1.1" 200 736
+"GET /api/game-state/ HTTP/1.1" 200 736
+"GET /admin-game-data/ HTTP/1.1" 200 1281
+"GET /api/game-state/ HTTP/1.1" 200 796
+"GET /api/game-state/ HTTP/1.1" 200 796
+"GET /admin-game-data/ HTTP/1.1" 200 1311
+"GET /api/game-state/ HTTP/1.1" 200 796
+"GET /api/game-state/ HTTP/1.1" 200 796
+"GET /admin-game-data/ HTTP/1.1" 200 1311
+"GET /api/game-state/ HTTP/1.1" 200 796
+"GET /api/game-state/ HTTP/1.1" 200 796
+"GET /admin-game-data/ HTTP/1.1" 200 1311
+"GET /api/game-state/ HTTP/1.1" 200 796
+"GET /api/game-state/ HTTP/1.1" 200 796
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/live-stats/ HTTP/1.1" 200 107
+"GET /admin-game-data/ HTTP/1.1" 200 1311
+"GET /api/game-state/ HTTP/1.1" 200 796
+"GET /api/game-state/ HTTP/1.1" 200 796
+"GET /api/game-state/ HTTP/1.1" 200 796
+"GET /admin-game-data/ HTTP/1.1" 200 1311
+"GET /api/game-state/ HTTP/1.1" 200 795
+"GET /admin-game-data/ HTTP/1.1" 200 1311
+"GET /api/game-state/ HTTP/1.1" 200 795
+"GET /admin-game-data/ HTTP/1.1" 200 1439
+"GET /api/game-state/ HTTP/1.1" 200 819
+"GET /api/game-state/ HTTP/1.1" 200 819
+"GET /api/game-state/ HTTP/1.1" 200 819
+"GET /admin-game-data/ HTTP/1.1" 200 1439
+"GET /api/game-state/ HTTP/1.1" 200 819
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/game-state/ HTTP/1.1" 200 819
+"GET /admin-game-data/ HTTP/1.1" 200 1439
+"GET /api/game-state/ HTTP/1.1" 200 819
+"GET /api/game-state/ HTTP/1.1" 200 879
+"GET /admin-game-data/ HTTP/1.1" 200 1469
+"GET /api/game-state/ HTTP/1.1" 200 879
+"GET /api/game-state/ HTTP/1.1" 200 879
+"GET /admin-game-data/ HTTP/1.1" 200 1469
+"GET /api/game-state/ HTTP/1.1" 200 879
+"GET /api/game-state/ HTTP/1.1" 200 879
+"GET /admin-game-data/ HTTP/1.1" 200 1469
+"GET /api/game-state/ HTTP/1.1" 200 879
+"GET /api/game-state/ HTTP/1.1" 200 879
+"GET /admin-game-data/ HTTP/1.1" 200 1469
+"GET /api/game-state/ HTTP/1.1" 200 879
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/game-state/ HTTP/1.1" 200 879
+"GET /admin-game-data/ HTTP/1.1" 200 1469
+"GET /api/game-state/ HTTP/1.1" 200 879
+"GET /api/game-state/ HTTP/1.1" 200 878
+"GET /admin-game-data/ HTTP/1.1" 200 1468
+"GET /api/game-state/ HTTP/1.1" 200 878
+"GET /api/game-state/ HTTP/1.1" 200 902
+"GET /admin-game-data/ HTTP/1.1" 200 1597
+"GET /api/game-state/ HTTP/1.1" 200 902
+"GET /api/game-state/ HTTP/1.1" 200 902
+"GET /admin-game-data/ HTTP/1.1" 200 1597
+"GET /api/game-state/ HTTP/1.1" 200 902
+"GET /api/game-state/ HTTP/1.1" 200 902
+"GET /admin-game-data/ HTTP/1.1" 200 1597
+"GET /api/game-state/ HTTP/1.1" 200 902
+"GET /api/live-stats/ HTTP/1.1" 200 107
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/game-state/ HTTP/1.1" 200 963
+"GET /admin-game-data/ HTTP/1.1" 200 1628
+"GET /api/game-state/ HTTP/1.1" 200 963
+"GET /api/game-state/ HTTP/1.1" 200 963
+"GET /admin-game-data/ HTTP/1.1" 200 1628
+"GET /api/game-state/ HTTP/1.1" 200 963
+"GET /api/game-state/ HTTP/1.1" 200 963
+"GET /admin-game-data/ HTTP/1.1" 200 1628
+"GET /api/game-state/ HTTP/1.1" 200 963
+"GET /api/game-state/ HTTP/1.1" 200 963
+"GET /admin-game-data/ HTTP/1.1" 200 1628
+"GET /api/game-state/ HTTP/1.1" 200 963
+"GET /api/game-state/ HTTP/1.1" 200 963
+"GET /admin-game-data/ HTTP/1.1" 200 1628
+"GET /api/game-state/ HTTP/1.1" 200 963
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/game-state/ HTTP/1.1" 200 963
+"GET /admin-game-data/ HTTP/1.1" 200 1628
+"GET /api/game-state/ HTTP/1.1" 200 962
+"GET /api/game-state/ HTTP/1.1" 200 962
+"GET /admin-game-data/ HTTP/1.1" 200 1628
+"GET /api/game-state/ HTTP/1.1" 200 986
+"GET /admin-game-data/ HTTP/1.1" 200 1756
+"GET /admin-game-data/ HTTP/1.1" 200 1756
+"GET /admin-game-data/ HTTP/1.1" 200 1787
+"GET /admin-game-data/ HTTP/1.1" 200 1787
+"GET /admin-game-data/ HTTP/1.1" 200 1787
+"GET /admin-game-data/ HTTP/1.1" 200 1787
+"GET /admin-game-data/ HTTP/1.1" 200 1787
+"GET /admin-game-data/ HTTP/1.1" 200 1787
+"GET /api/live-stats/ HTTP/1.1" 200 107
+"GET /admin-game-data/ HTTP/1.1" 200 1787
+"GET /admin-game-data/ HTTP/1.1" 200 1916
+"GET /admin-game-data/ HTTP/1.1" 200 1916
+"GET /admin-game-data/ HTTP/1.1" 200 1916
+"GET /admin-game-data/ HTTP/1.1" 200 1947
+"GET /admin-game-data/ HTTP/1.1" 200 1947
+"GET /admin-game-data/ HTTP/1.1" 200 1947
+"GET /admin-game-data/ HTTP/1.1" 200 1947
+"GET /admin-game-data/ HTTP/1.1" 200 1947
+"GET /admin-game-data/ HTTP/1.1" 200 1946
+"GET /admin-game-data/ HTTP/1.1" 200 1947
+"GET /admin-game-data/ HTTP/1.1" 200 2075
+"GET /admin-game-data/ HTTP/1.1" 200 2075
+"GET /admin-game-data/ HTTP/1.1" 200 2075
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/game-state/ HTTP/1.1" 200 1154
+"GET /admin-game-data/ HTTP/1.1" 200 2106
+"GET /api/live-stats/ HTTP/1.1" 200 108
+"GET /admin-game-data/ HTTP/1.1" 200 2106
+"GET /admin-game-data/ HTTP/1.1" 200 2106
+"GET /admin-game-data/ HTTP/1.1" 200 2106
+"GET /admin-game-data/ HTTP/1.1" 200 2106
+"GET /admin-game-data/ HTTP/1.1" 200 2105
+"GET /admin-game-data/ HTTP/1.1" 200 2105
+"GET /admin-game-data/ HTTP/1.1" 200 2234
+"GET /admin-game-data/ HTTP/1.1" 200 2234
+"GET /admin/betting_app/aviatorgame/ HTTP/1.1" 200 31082
+"GET /static/admin/css/base.css HTTP/1.1" 304 0
+"GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
+"GET /static/admin/js/theme.js HTTP/1.1" 304 0
+"GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
+"GET /static/admin/css/responsive.css HTTP/1.1" 304 0
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
+"GET /admin-game-data/ HTTP/1.1" 200 2265
+"GET /admin-game-data/ HTTP/1.1" 200 2265
+"GET /admin-game-data/ HTTP/1.1" 200 2265
+"GET /admin-game-data/ HTTP/1.1" 200 2265
+"GET /admin-game-data/ HTTP/1.1" 200 2265
+"GET /admin-game-data/ HTTP/1.1" 200 2265
+"GET /admin-game-data/ HTTP/1.1" 200 2265
+"GET /admin-game-data/ HTTP/1.1" 200 2393
+"GET /admin-game-data/ HTTP/1.1" 200 2393
+"GET /admin-game-data/ HTTP/1.1" 200 2424
+"GET /admin-game-data/ HTTP/1.1" 200 2424
+"GET /admin-game-data/ HTTP/1.1" 200 2424
+"GET /admin-game-data/ HTTP/1.1" 200 2424
+"GET /admin-game-data/ HTTP/1.1" 200 2424
+"GET /admin-game-data/ HTTP/1.1" 200 2424
+"GET /admin-game-data/ HTTP/1.1" 200 2424
+"GET /admin-game-data/ HTTP/1.1" 200 2424
+"GET /admin-game-data/ HTTP/1.1" 200 2425
+"GET /admin-game-data/ HTTP/1.1" 200 2425
+"GET /admin-game-data/ HTTP/1.1" 200 2425
+"GET /admin-game-data/ HTTP/1.1" 200 2553
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/game-state/ HTTP/1.1" 200 1407
+"GET /api/live-stats/ HTTP/1.1" 200 108
+"GET /admin-game-data/ HTTP/1.1" 200 2553
+"GET /admin-game-data/ HTTP/1.1" 200 2584
+"GET /admin-game-data/ HTTP/1.1" 200 2584
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/game-state/ HTTP/1.1" 200 1468
+"GET /api/live-stats/ HTTP/1.1" 200 108
+"GET /api/game-state/ HTTP/1.1" 200 1468
+"GET /api/game-state/ HTTP/1.1" 200 1468
+"GET /api/game-state/ HTTP/1.1" 200 1468
+"GET /admin-game-data/ HTTP/1.1" 200 2584
+"GET /api/game-state/ HTTP/1.1" 200 1468
+"GET /api/game-state/ HTTP/1.1" 200 1468
+"GET /admin-game-data/ HTTP/1.1" 200 2584
+"GET /api/game-state/ HTTP/1.1" 200 1468
+"GET /api/game-state/ HTTP/1.1" 200 1468
+"GET /admin-game-data/ HTTP/1.1" 200 2584
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/game-state/ HTTP/1.1" 200 1468
+"GET /api/game-state/ HTTP/1.1" 200 1467
+"GET /admin-game-data/ HTTP/1.1" 200 2584
+"GET /api/game-state/ HTTP/1.1" 200 1467
+"GET /api/game-state/ HTTP/1.1" 200 1491
+"GET /admin-game-data/ HTTP/1.1" 200 2712
+"GET /api/game-state/ HTTP/1.1" 200 1491
+"GET /api/game-state/ HTTP/1.1" 200 1491
+"GET /admin-game-data/ HTTP/1.1" 200 2712
+"GET /api/game-state/ HTTP/1.1" 200 1491
+"GET /api/game-state/ HTTP/1.1" 200 1491
+"GET /admin-game-data/ HTTP/1.1" 200 2712
+"GET /api/game-state/ HTTP/1.1" 200 1552
+"GET /api/game-state/ HTTP/1.1" 200 1552
+"GET /admin-game-data/ HTTP/1.1" 200 2743
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/game-state/ HTTP/1.1" 200 1552
+"GET /api/game-state/ HTTP/1.1" 200 1552
+"GET /admin-game-data/ HTTP/1.1" 200 2743
+"GET /api/game-state/ HTTP/1.1" 200 1552
+"GET /api/game-state/ HTTP/1.1" 200 1552
+"GET /admin-game-data/ HTTP/1.1" 200 2743
+"GET /api/game-state/ HTTP/1.1" 200 1552
+"GET /api/game-state/ HTTP/1.1" 200 1552
+"GET /admin-game-data/ HTTP/1.1" 200 2743
+"GET /api/game-state/ HTTP/1.1" 200 1552
+"GET /api/game-state/ HTTP/1.1" 200 1552
+"GET /admin-game-data/ HTTP/1.1" 200 2743
+"GET /api/game-state/ HTTP/1.1" 200 1552
+"GET /api/game-state/ HTTP/1.1" 200 1551
+"GET /admin-game-data/ HTTP/1.1" 200 2742
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/game-state/ HTTP/1.1" 200 1551
+"GET /api/live-stats/ HTTP/1.1" 200 108
+"GET /api/game-state/ HTTP/1.1" 200 1551
+"GET /admin-game-data/ HTTP/1.1" 200 2742
+"GET /api/game-state/ HTTP/1.1" 200 1551
+"GET /api/game-state/ HTTP/1.1" 200 1575
+"GET /admin-game-data/ HTTP/1.1" 200 2871
+"GET /api/game-state/ HTTP/1.1" 200 1575
+"GET /api/game-state/ HTTP/1.1" 200 1575
+"GET /admin-game-data/ HTTP/1.1" 200 2871
+"GET /api/game-state/ HTTP/1.1" 200 1575
+"GET /api/game-state/ HTTP/1.1" 200 1575
+"GET /admin-game-data/ HTTP/1.1" 200 2871
+"GET /api/game-state/ HTTP/1.1" 200 1575
+"GET /api/game-state/ HTTP/1.1" 200 1636
+"GET /admin-game-data/ HTTP/1.1" 200 2902
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/game-state/ HTTP/1.1" 200 1636
+"GET /api/game-state/ HTTP/1.1" 200 1636
+"GET /admin-game-data/ HTTP/1.1" 200 2902
+"GET /api/game-state/ HTTP/1.1" 200 1636
+"GET /api/game-state/ HTTP/1.1" 200 1636
+"GET /admin-game-data/ HTTP/1.1" 200 2902
+"GET /api/game-state/ HTTP/1.1" 200 1636
+"GET /api/game-state/ HTTP/1.1" 200 1636
+"GET /admin-game-data/ HTTP/1.1" 200 2902
+"GET /api/game-state/ HTTP/1.1" 200 1636
+"GET /api/game-state/ HTTP/1.1" 200 1636
+"GET /admin-game-data/ HTTP/1.1" 200 2902
+"GET /api/game-state/ HTTP/1.1" 200 1636
+"GET /api/game-state/ HTTP/1.1" 200 1636
+"GET /admin-game-data/ HTTP/1.1" 200 2902
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/game-state/ HTTP/1.1" 200 1635
+"GET /api/game-state/ HTTP/1.1" 200 1635
+"GET /admin-game-data/ HTTP/1.1" 200 2902
+"GET /api/game-state/ HTTP/1.1" 200 1658
+"GET /api/game-state/ HTTP/1.1" 200 1658
+"GET /admin-game-data/ HTTP/1.1" 200 3029
+"GET /api/game-state/ HTTP/1.1" 200 1658
+"GET /api/game-state/ HTTP/1.1" 200 1658
+"GET /admin-game-data/ HTTP/1.1" 200 3029
+"GET /api/game-state/ HTTP/1.1" 200 1658
+"GET /api/game-state/ HTTP/1.1" 200 1719
+"GET /admin-game-data/ HTTP/1.1" 200 3060
+"GET /api/game-state/ HTTP/1.1" 200 1719
+"GET /api/game-state/ HTTP/1.1" 200 1719
+"GET /admin-game-data/ HTTP/1.1" 200 3060
+"GET /api/game-state/ HTTP/1.1" 200 1719
+"GET /api/user-balance/ HTTP/1.1" 200 38
+"GET /api/live-stats/ HTTP/1.1" 200 108
+"GET /api/game-state/ HTTP/1.1" 200 1719
+"GET /admin-game-data/ HTTP/1.1" 200 3060
+"GET /api/game-state/ HTTP/1.1" 200 1719
+"GET /api/game-state/ HTTP/1.1" 200 1719
+"GET /api/game-state/ HTTP/1.1" 200 1719

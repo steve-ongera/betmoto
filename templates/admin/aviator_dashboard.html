@@ -1,0 +1,690 @@
+<!-- templates/admin/aviator_dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviator Admin Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'admin/dashboard.css' %}">
+</head>
+<body class="bg-light">
+    {% csrf_token %}
+    
+    <div class="dashboard-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="fas fa-plane"></i> Aviator Admin Dashboard</h1>
+                    <p class="mb-0">Real-time game management and monitoring system</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <span class="status-indicator {% if engine_running %}status-running{% else %}status-stopped{% endif %}"></span>
+                    <strong>System Status: <span id="systemStatus">{% if engine_running %}Running{% else %}Stopped{% endif %}</span></strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <!-- Statistics Cards -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-card revenue">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>Total Revenue</h5>
+                            <h3 id="totalRevenue">KES {{ stats.total_revenue_today|floatformat:2 }}</h3>
+                        </div>
+                        <i class="fas fa-money-bill-wave fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card players">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>Active Players</h5>
+                            <h3 id="activePlayers">{{ stats.active_players }}</h3>
+                        </div>
+                        <i class="fas fa-users fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card games">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>Games Today</h5>
+                            <h3 id="gamesToday">{{ stats.active_games_today }}</h3>
+                        </div>
+                        <i class="fas fa-gamepad fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card profit">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>House Profit</h5>
+                            <h3 id="houseProfit">KES 0</h3>
+                        </div>
+                        <i class="fas fa-chart-line fa-2x text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Control Panel -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="game-control-panel">
+                    <h4><i class="fas fa-gamepad"></i> Game Control Center</h4>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="game-phase" id="gamePhase">
+                                {% if current_game %}
+                                    <i class="fas fa-{% if current_game.status == 'betting' %}clock{% elif current_game.status == 'flying' %}rocket{% else %}pause{% endif %}"></i> 
+                                    {{ current_game.status|upper }}
+                                {% else %}
+                                    <i class="fas fa-clock"></i> WAITING FOR PLAYERS
+                                {% endif %}
+                            </div>
+                            
+                            <div class="multiplier-display" id="currentMultiplier">
+                                {% if current_game and current_game.multiplier %}
+                                    {{ current_game.multiplier }}x
+                                {% else %}
+                                    1.00x
+                                {% endif %}
+                            </div>
+                            
+                            <div class="text-center">
+                                <strong>Round #<span id="currentRound">{% if current_game %}{{ current_game.round_number }}{% else %}0{% endif %}</span></strong>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Game Status</label>
+                                <div>
+                                    <span class="status-indicator {% if engine_running %}status-running{% else %}status-stopped{% endif %}" id="gameStatusIndicator"></span>
+                                    <span id="gameStatusText">{% if engine_running %}Running{% else %}Stopped{% endif %}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Players in Round</label>
+                                <h4 id="playersInRound">0</h4>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Total Bets</label>
+                                <h4 id="totalBets">KES 0</h4>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-buttons text-center">
+                        <button class="btn btn-success" id="startSystemBtn" {% if engine_running %}disabled{% endif %}>
+                            <i class="fas fa-play"></i> Start System
+                        </button>
+                        <button class="btn btn-danger" id="stopSystemBtn" {% if not engine_running %}disabled{% endif %}>
+                            <i class="fas fa-stop"></i> Stop System
+                        </button>
+                        <button class="btn btn-warning" id="maintenanceBtn">
+                            <i class="fas fa-tools"></i> Maintenance Mode
+                        </button>
+                        <button class="btn btn-info" id="forceCrashBtn" {% if not engine_running %}disabled{% endif %}>
+                            <i class="fas fa-exclamation-triangle"></i> Force Crash
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="settings-panel">
+                    <h5><i class="fas fa-cog"></i> Quick Settings</h5>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">House Edge (%)</label>
+                        <input type="number" class="form-control" id="houseEdge" min="1" max="10" step="0.1" 
+                               value="{{ game_settings.house_edge|default:3.0 }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Betting Duration (seconds)</label>
+                        <input type="number" class="form-control" id="bettingDuration" min="5" max="30" 
+                               value="{{ game_settings.betting_duration|default:10 }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Game Interval (seconds)</label>
+                        <input type="number" class="form-control" id="gameInterval" min="1" max="10" 
+                               value="{{ game_settings.game_interval|default:5 }}">
+                    </div>
+                    
+                    <button class="btn btn-primary w-100" id="updateSettingsBtn">
+                        <i class="fas fa-save"></i> Update Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs for detailed information -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <ul class="nav nav-tabs" id="dashboardTabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#liveBets">Live Bets</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#gameHistory">Game History</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#playerManagement">Players</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#systemLogs">System Logs</a>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="dashboardTabContent">
+                    <!-- Live Bets Tab -->
+                    <div class="tab-pane fade show active" id="liveBets">
+                        <div class="settings-panel mt-3">
+                            <h5><i class="fas fa-chart-bar"></i> Live Betting Activity</h5>
+                            <div class="live-feed" id="liveBetsFeed">
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-spin fa-spinner"></i> Loading live data...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Game History Tab -->
+                    <div class="tab-pane fade" id="gameHistory">
+                        <div class="settings-panel mt-3">
+                            <h5><i class="fas fa-history"></i> Recent Games</h5>
+                            <div class="recent-games" id="recentGames">
+                                {% for game in recent_games %}
+                                <div class="game-result {% if game.multiplier < 2 %}low{% elif game.multiplier < 5 %}medium{% elif game.multiplier < 10 %}high{% else %}extreme{% endif %}">
+                                    <div><strong>{{ game.multiplier }}x</strong></div>
+                                    <small>Round {{ game.round_number }}</small>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="table-responsive mt-3">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Round</th>
+                                            <th>Multiplier</th>
+                                            <th>Status</th>
+                                            <th>Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="gameHistoryTable">
+                                        {% for game in recent_games %}
+                                        <tr>
+                                            <td>#{{ game.round_number }}</td>
+                                            <td><strong class="text-success">{{ game.multiplier }}x</strong></td>
+                                            <td><span class="badge bg-success">{{ game.status }}</span></td>
+                                            <td>{{ game.created_at|timesince }} ago</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Player Management Tab -->
+                    <div class="tab-pane fade" id="playerManagement">
+                        <div class="settings-panel mt-3">
+                            <h5><i class="fas fa-users"></i> Player Management</h5>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" placeholder="Search players..." id="playerSearch">
+                                </div>
+                                <div class="col-md-6">
+                                    <select class="form-select" id="playerFilter">
+                                        <option value="">All Players</option>
+                                        <option value="active">Active</option>
+                                        <option value="suspended">Suspended</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Username</th>
+                                            <th>Email</th>
+                                            <th>Balance</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="playersTable">
+                                        <tr><td colspan="5" class="text-center">Loading players...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- System Logs Tab -->
+                    <div class="tab-pane fade" id="systemLogs">
+                        <div class="settings-panel mt-3">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5><i class="fas fa-list"></i> System Logs</h5>
+                                <button class="btn btn-outline-secondary" id="clearLogsBtn">
+                                    <i class="fas fa-trash"></i> Clear Logs
+                                </button>
+                            </div>
+                            <div class="live-feed" id="systemLogs" style="max-height: 500px;">
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-spin fa-spinner"></i> Loading logs...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Get CSRF token
+        function getCsrfToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]').value;
+        }
+        
+        // Dashboard functionality
+        class AviatorAdminDashboard {
+            constructor() {
+                this.init();
+            }
+            
+            init() {
+                this.bindEvents();
+                this.startDataRefresh();
+            }
+            
+            bindEvents() {
+                document.getElementById('startSystemBtn').addEventListener('click', () => this.startSystem());
+                document.getElementById('stopSystemBtn').addEventListener('click', () => this.stopSystem());
+                document.getElementById('forceCrashBtn').addEventListener('click', () => this.forceCrash());
+                document.getElementById('maintenanceBtn').addEventListener('click', () => this.toggleMaintenance());
+                document.getElementById('updateSettingsBtn').addEventListener('click', () => this.updateSettings());
+                document.getElementById('clearLogsBtn').addEventListener('click', () => this.clearLogs());
+            }
+            
+            async startSystem() {
+                try {
+                    const response = await fetch('/admin-start-system/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCsrfToken()
+                        }
+                    });
+                    const data = await response.json();
+                    
+                    if (data.status === 'success') {
+                        this.showAlert('System started successfully!', 'success');
+                        document.getElementById('startSystemBtn').disabled = true;
+                        document.getElementById('stopSystemBtn').disabled = false;
+                        document.getElementById('forceCrashBtn').disabled = false;
+                        this.updateSystemStatus('running');
+                    } else {
+                        this.showAlert(data.message || 'Failed to start system', 'danger');
+                    }
+                } catch (error) {
+                    this.showAlert('Error starting system: ' + error.message, 'danger');
+                }
+            }
+            
+            async stopSystem() {
+                if (confirm('Are you sure you want to stop the system? This will end all active games.')) {
+                    try {
+                        const response = await fetch('/admin-stop-system/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCsrfToken()
+                            }
+                        });
+                        const data = await response.json();
+                        
+                        if (data.status === 'success') {
+                            this.showAlert('System stopped successfully!', 'warning');
+                            document.getElementById('startSystemBtn').disabled = false;
+                            document.getElementById('stopSystemBtn').disabled = true;
+                            document.getElementById('forceCrashBtn').disabled = true;
+                            this.updateSystemStatus('stopped');
+                        } else {
+                            this.showAlert(data.message || 'Failed to stop system', 'danger');
+                        }
+                    } catch (error) {
+                        this.showAlert('Error stopping system: ' + error.message, 'danger');
+                    }
+                }
+            }
+            
+            async forceCrash() {
+                if (confirm('Are you sure you want to force crash the current game?')) {
+                    try {
+                        const response = await fetch('/admin-force-crash/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCsrfToken()
+                            }
+                        });
+                        const data = await response.json();
+                        
+                        if (data.status === 'success') {
+                            this.showAlert('Game crashed successfully!', 'info');
+                        } else {
+                            this.showAlert(data.message || 'Failed to crash game', 'danger');
+                        }
+                    } catch (error) {
+                        this.showAlert('Error crashing game: ' + error.message, 'danger');
+                    }
+                }
+            }
+            
+            async toggleMaintenance() {
+                try {
+                    const response = await fetch('/admin-toggle-maintenance/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCsrfToken()
+                        }
+                    });
+                    const data = await response.json();
+                    
+                    if (data.status === 'success') {
+                        this.showAlert(data.message, 'info');
+                    } else {
+                        this.showAlert(data.message || 'Failed to toggle maintenance', 'danger');
+                    }
+                } catch (error) {
+                    this.showAlert('Error toggling maintenance: ' + error.message, 'danger');
+                }
+            }
+            
+            async updateSettings() {
+                try {
+                    const settings = {
+                        house_edge: document.getElementById('houseEdge').value,
+                        betting_duration: document.getElementById('bettingDuration').value,
+                        game_interval: document.getElementById('gameInterval').value
+                    };
+                    
+                    const response = await fetch('/admin-update-settings/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCsrfToken()
+                        },
+                        body: JSON.stringify(settings)
+                    });
+                    const data = await response.json();
+                    
+                    if (data.status === 'success') {
+                        this.showAlert('Settings updated successfully!', 'success');
+                    } else {
+                        this.showAlert(data.message || 'Failed to update settings', 'danger');
+                    }
+                } catch (error) {
+                    this.showAlert('Error updating settings: ' + error.message, 'danger');
+                }
+            }
+            
+            clearLogs() {
+                document.getElementById('systemLogs').innerHTML = '<div class="text-center text-muted">Logs cleared</div>';
+            }
+            
+            updateSystemStatus(status) {
+                document.getElementById('systemStatus').textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                document.getElementById('gameStatusText').textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                
+                const indicator = document.getElementById('gameStatusIndicator');
+                indicator.className = 'status-indicator';
+                if (status === 'running') {
+                    indicator.classList.add('status-running');
+                } else if (status === 'stopped') {
+                    indicator.classList.add('status-stopped');
+                } else {
+                    indicator.classList.add('status-maintenance');
+                }
+            }
+            
+            showAlert(message, type) {
+                const alertHtml = `
+                    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+                
+                const container = document.createElement('div');
+                container.innerHTML = alertHtml;
+                document.body.insertBefore(container.firstElementChild, document.body.firstChild);
+                
+                setTimeout(() => {
+                    const alert = document.querySelector('.alert');
+                    if (alert) alert.remove();
+                }, 5000);
+            }
+            
+            async fetchGameData() {
+                try {
+                    const response = await fetch('/admin-game-data/');
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.updateDashboard(data);
+                    }
+                } catch (error) {
+                    console.error('Error fetching game data:', error);
+                }
+            }
+            
+            updateDashboard(data) {
+                // Update game info
+                if (data.current_game) {
+                    document.getElementById('currentRound').textContent = data.current_game.round_number;
+                    document.getElementById('currentMultiplier').textContent = data.current_game.multiplier + 'x';
+                    document.getElementById('playersInRound').textContent = data.current_game.player_count;
+                    document.getElementById('totalBets').textContent = 'KES ' + data.current_game.total_bets;
+                    
+                    const gamePhase = document.getElementById('gamePhase');
+                    gamePhase.textContent = data.current_game.status.toUpperCase();
+                    gamePhase.className = 'game-phase ' + data.current_game.status;
+                }
+                
+                // Update statistics
+                if (data.stats) {
+                    document.getElementById('totalRevenue').textContent = 'KES ' + data.stats.total_revenue;
+                    document.getElementById('activePlayers').textContent = data.stats.active_players;
+                    document.getElementById('gamesToday').textContent = data.stats.games_today;
+                    document.getElementById('houseProfit').textContent = 'KES ' + data.stats.house_profit;
+                }
+                
+                // Update live bets
+                if (data.live_bets) {
+                    this.updateLiveBets(data.live_bets);
+                }
+                
+                // Update system status
+                if (data.engine_status) {
+                    this.updateSystemStatus(data.engine_status);
+                }
+            }
+            
+            updateLiveBets(bets) {
+                const container = document.getElementById('liveBetsFeed');
+                if (!bets || bets.length === 0) {
+                    container.innerHTML = '<div class="text-center text-muted">No active bets</div>';
+                    return;
+                }
+                
+                container.innerHTML = bets.map(bet => `
+                    <div class="bet-item">
+                        <div class="d-flex justify-content-between">
+                            <strong>${bet.username}</strong>
+                            <span class="text-success">KES ${bet.amount}</span>
+                        </div>
+                        <small class="text-muted">
+                            Auto cash out: ${bet.auto_cash_out ? bet.auto_cash_out + 'x' : 'None'}
+                        </small>
+                    </div>
+                `).join('');
+            }
+            
+            startDataRefresh() {
+                // Refresh every 2 seconds
+                setInterval(() => {
+                    this.fetchGameData();
+                }, 2000);
+                
+                // Initial fetch
+                this.fetchGameData();
+            }
+        }
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            new AviatorAdminDashboard();
+        });
+    </script>
+
+    <style>
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem 0;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card.revenue { border-left-color: #28a745; }
+        .stat-card.players { border-left-color: #007bff; }
+        .stat-card.games { border-left-color: #ffc107; }
+        .stat-card.profit { border-left-color: #dc3545; }
+        
+        .game-control-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-running { background-color: #28a745; }
+        .status-stopped { background-color: #dc3545; }
+        .status-maintenance { background-color: #ffc107; }
+        
+        .game-phase {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .game-phase.betting {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        }
+        
+        .game-phase.flying {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        
+        .multiplier-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #28a745;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .settings-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .live-feed {
+            max-height: 400px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+        }
+        
+        .bet-item {
+            background: white;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            border-left: 3px solid #007bff;
+        }
+        
+        .recent-games {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .game-result {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 120px;
+            border: 2px solid;
+        }
+        
+        .game-result.low { border-color: #dc3545; }
+        .game-result.medium { border-color: #ffc107; }
+        .game-result.high { border-color: #28a745; }
+        .game-result.extreme { border-color: #6f42c1; }
+    </style>
+</body>
+</html>

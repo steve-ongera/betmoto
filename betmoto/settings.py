@@ -126,3 +126,56 @@ MEDIA_ROOT = BASE_DIR / "media"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Celery beat schedule configuration
+# Add this to your settings.py
+
+CELERY_BEAT_SCHEDULE = {
+    'monitor-system-health': {
+        'task': 'betting_app.tasks.monitor_system_health',
+        'schedule': 300.0,  # Every 5 minutes
+    },
+    'cleanup-old-games': {
+        'task': 'betting_app.tasks.cleanup_old_games',
+        'schedule': 86400.0,  # Daily
+    },
+    'generate-daily-report': {
+        'task': 'betting_app.tasks.generate_daily_report',
+        'schedule': 86400.0,  # Daily at midnight
+    },
+    'update-user-statistics': {
+        'task': 'betting_app.tasks.update_user_statistics',
+        'schedule': 3600.0,  # Every hour
+    },
+    'backup-critical-data': {
+        'task': 'betting_app.tasks.backup_critical_data',
+        'schedule': 86400.0,  # Daily
+    },
+}
+
+CELERY_TIMEZONE = 'UTC'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'aviator.log'),
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'myapp': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
