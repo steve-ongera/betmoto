@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviator Admin Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.css" rel="stylesheet">
+    <style>
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem 0;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card.revenue { border-left-color: #28a745; }
+        .stat-card.players { border-left-color: #007bff; }
+        .stat-card.games { border-left-color: #ffc107; }
+        .stat-card.profit { border-left-color: #dc3545; }
+        
+        .game-control-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-running { background-color: #28a745; }
+        .status-stopped { background-color: #dc3545; }
+        .status-maintenance { background-color: #ffc107; }
+        
+        .game-phase {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .game-phase.betting {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        }
+        
+        .game-phase.flying {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        
+        .game-phase.crashed {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        }
+        
+        .multiplier-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #28a745;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .control-buttons .btn {
+            margin: 0.5rem;
+            min-width: 150px;
+        }
+        
+        .live-feed {
+            max-height: 400px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+        }
+        
+        .bet-item {
+            background: white;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            border-left: 3px solid #007bff;
+        }
+        
+        .recent-games {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .game-result {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 120px;
+            border: 2px solid;
+        }
+        
+        .game-result.low { border-color: #dc3545; }
+        .game-result.medium { border-color: #ffc107; }
+        .game-result.high { border-color: #28a745; }
+        .game-result.extreme { border-color: #6f42c1; }
+        
+        .settings-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .nav-tabs .nav-link {
+            border-radius: 10px 10px 0 0;
+            margin-right: 0.5rem;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .alert-custom {
+            border-radius: 10px;
+            border: none;
+            padding: 1rem 1.5rem;
+        }
+        
+        .modal-content {
+            border-radius: 15px;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="dashboard-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="fas fa-plane"></i> Aviator Admin Dashboard</h1>
+                    <p class="mb-0">Real-time game management and monitoring system</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <span class="status-indicator status-running"></span>
+                    <strong>System Status: <span id="systemStatus">Running</span></strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <!-- Statistics Cards -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-card revenue">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>Total Revenue</h5>
+                            <h3 id="totalRevenue">KES 0</h3>
+                        </div>
+                        <i class="fas fa-money-bill-wave fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card players">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>Active Players</h5>
+                            <h3 id="activePlayers">0</h3>
+                        </div>
+                        <i class="fas fa-users fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card games">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>Games Today</h5>
+                            <h3 id="gamesToday">0</h3>
+                        </div>
+                        <i class="fas fa-gamepad fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card profit">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>House Profit</h5>
+                            <h3 id="houseProfit">KES 0</h3>
+                        </div>
+                        <i class="fas fa-chart-line fa-2x text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Control Panel -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="game-control-panel">
+                    <h4><i class="fas fa-gamepad"></i> Game Control Center</h4>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="game-phase" id="gamePhase">
+                                <i class="fas fa-clock"></i> WAITING FOR PLAYERS
+                            </div>
+                            
+                            <div class="multiplier-display" id="currentMultiplier">1.00x</div>
+                            
+                            <div class="text-center">
+                                <strong>Round #<span id="currentRound">0</span></strong>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Game Status</label>
+                                <div>
+                                    <span class="status-indicator" id="gameStatusIndicator"></span>
+                                    <span id="gameStatusText">Stopped</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Players in Round</label>
+                                <h4 id="playersInRound">0</h4>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Total Bets</label>
+                                <h4 id="totalBets">KES 0</h4>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-buttons text-center">
+                        <button class="btn btn-success" id="startSystemBtn">
+                            <i class="fas fa-play"></i> Start System
+                        </button>
+                        <button class="btn btn-danger" id="stopSystemBtn">
+                            <i class="fas fa-stop"></i> Stop System
+                        </button>
+                        <button class="btn btn-warning" id="maintenanceBtn">
+                            <i class="fas fa-tools"></i> Maintenance Mode
+                        </button>
+                        <button class="btn btn-info" id="forceCrashBtn">
+                            <i class="fas fa-exclamation-triangle"></i> Force Crash
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="settings-panel">
+                    <h5><i class="fas fa-cog"></i> Quick Settings</h5>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">House Edge (%)</label>
+                        <input type="number" class="form-control" id="houseEdge" min="1" max="10" step="0.1" value="3.0">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Betting Duration (seconds)</label>
+                        <input type="number" class="form-control" id="bettingDuration" min="5" max="30" value="10">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Game Interval (seconds)</label>
+                        <input type="number" class="form-control" id="gameInterval" min="1" max="10" value="5">
+                    </div>
+                    
+                    <button class="btn btn-primary w-100" id="updateSettingsBtn">
+                        <i class="fas fa-save"></i> Update Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs for detailed information -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <ul class="nav nav-tabs" id="dashboardTabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#liveBets">Live Bets</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#gameHistory">Game History</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#playerManagement">Players</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#analytics">Analytics</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#systemLogs">System Logs</a>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="dashboardTabContent">
+                    <!-- Live Bets Tab -->
+                    <div class="tab-pane fade show active" id="liveBets">
+                        <div class="settings-panel mt-3">
+                            <h5><i class="fas fa-chart-bar"></i> Live Betting Activity</h5>
+                            <div class="live-feed" id="liveBetsFeed">
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-spin fa-spinner"></i> Waiting for live data...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Game History Tab -->
+                    <div class="tab-pane fade" id="gameHistory">
+                        <div class="settings-panel mt-3">
+                            <h5><i class="fas fa-history"></i> Recent Games</h5>
+                            <div class="recent-games" id="recentGames">
+                                <!-- Game results will be populated here -->
+                            </div>
+                            
+                            <div class="table-responsive mt-3">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Round</th>
+                                            <th>Multiplier</th>
+                                            <th>Players</th>
+                                            <th>Total Bets</th>
+                                            <th>Total Payout</th>
+                                            <th>House Profit</th>
+                                            <th>Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="gameHistoryTable">
+                                        <!-- Data will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Player Management Tab -->
+                    <div class="tab-pane fade" id="playerManagement">
+                        <div class="settings-panel mt-3">
+                            <h5><i class="fas fa-users"></i> Player Management</h5>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" placeholder="Search players..." id="playerSearch">
+                                </div>
+                                <div class="col-md-6">
+                                    <select class="form-select" id="playerFilter">
+                                        <option value="">All Players</option>
+                                        <option value="active">Active</option>
+                                        <option value="suspended">Suspended</option>
+                                        <option value="vip">VIP</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Username</th>
+                                            <th>Email</th>
+                                            <th>Balance</th>
+                                            <th>Total Bets</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="playersTable">
+                                        <!-- Player data will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Analytics Tab -->
+                    <div class="tab-pane fade" id="analytics">
+                        <div class="settings-panel mt-3">
+                            <h5><i class="fas fa-chart-line"></i> Analytics & Reports</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <canvas id="revenueChart"></canvas>
+                                </div>
+                                <div class="col-md-6">
+                                    <canvas id="multiplierChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- System Logs Tab -->
+                    <div class="tab-pane fade" id="systemLogs">
+                        <div class="settings-panel mt-3">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5><i class="fas fa-list"></i> System Logs</h5>
+                                <button class="btn btn-outline-secondary" id="clearLogsBtn">
+                                    <i class="fas fa-trash"></i> Clear Logs
+                                </button>
+                            </div>
+                            <div class="live-feed" id="systemLogs" style="max-height: 500px;">
+                                <!-- System logs will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-cog"></i> System Settings</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Game Settings</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Min Bet Amount</label>
+                                <input type="number" class="form-control" id="minBetAmount" value="1.00">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Max Bet Amount</label>
+                                <input type="number" class="form-control" id="maxBetAmount" value="10000.00">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>System Settings</h6>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="autoGameMode" checked>
+                                    <label class="form-check-label" for="autoGameMode">
+                                        Auto Game Mode
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="enableChat" checked>
+                                    <label class="form-check-label" for="enableChat">
+                                        Enable Chat
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveSettingsBtn">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <script>
+        class AviatorAdminDashboard {
+            constructor() {
+                this.gameState = {
+                    isRunning: false,
+                    currentRound: 0,
+                    phase: 'waiting',
+                    multiplier: 1.00,
+                    players: 0,
+                    totalBets: 0
+                };
+                
+                this.settings = {
+                    houseEdge: 3.0,
+                    bettingDuration: 10,
+                    gameInterval: 5,
+                    autoMode: true
+                };
+                
+                this.init();
+            }
+            
+            init() {
+                this.bindEvents();
+                this.initCharts();
+                this.startDataRefresh();
+                this.addSystemLog('Dashboard initialized', 'info');
+            }
+            
+            bindEvents() {
+                // Control buttons
+                document.getElementById('startSystemBtn').addEventListener('click', () => this.startSystem());
+                document.getElementById('stopSystemBtn').addEventListener('click', () => this.stopSystem());
+                document.getElementById('maintenanceBtn').addEventListener('click', () => this.toggleMaintenance());
+                document.getElementById('forceCrashBtn').addEventListener('click', () => this.forceCrash());
+                
+                // Settings
+                document.getElementById('updateSettingsBtn').addEventListener('click', () => this.updateSettings());
+                document.getElementById('saveSettingsBtn').addEventListener('click', () => this.saveAllSettings());
+                
+                // Other controls
+                document.getElementById('clearLogsBtn').addEventListener('click', () => this.clearLogs());
+            }
+            
+            async startSystem() {
+                try {
+                    const response = await fetch('/admin/start-system/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': this.getCsrfToken()
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        this.gameState.isRunning = true;
+                        this.updateSystemStatus('running');
+                        this.addSystemLog('Game system started', 'success');
+                        this.showAlert('System started successfully!', 'success');
+                    }
+                } catch (error) {
+                    this.addSystemLog(`Error starting system: ${error.message}`, 'error');
+                    this.showAlert('Failed to start system', 'error');
+                }
+            }
+            
+            async stopSystem() {
+                try {
+                    const response = await fetch('/admin/stop-system/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': this.getCsrfToken()
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        this.gameState.isRunning = false;
+                        this.updateSystemStatus('stopped');
+                        this.addSystemLog('Game system stopped', 'warning');
+                        this.showAlert('System stopped successfully!', 'warning');
+                    }
+                } catch (error) {
+                    this.addSystemLog(`Error stopping system: ${error.message}`, 'error');
+                    this.showAlert('Failed to stop system', 'error');
+                }
+            }
+            
+            async forceCrash() {
+                if (!this.gameState.isRunning) {
+                    this.showAlert('System must be running to force crash', 'warning');
+                    return;
+                }
+                
+                if (confirm('Are you sure you want to force crash the current game?')) {
+                    try {
+                        const response = await fetch('/admin/force-crash/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': this.getCsrfToken()
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            this.addSystemLog('Game force crashed by admin', 'warning');
+                            this.showAlert('Game crashed successfully!', 'info');
+                        }
+                    } catch (error) {
+                        this.addSystemLog(`Error force crashing: ${error.message}`, 'error');
+                        this.showAlert('Failed to crash game', 'error');
+                    }
+                }
+            }
+            
+            updateSystemStatus(status) {
+                const statusElement = document.getElementById('systemStatus');
+                const indicatorElement = document.getElementById('gameStatusIndicator');
+                const statusTextElement = document.getElementById('gameStatusText');
+                
+                statusElement.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                statusTextElement.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                
+                // Update indicator color
+                indicatorElement.className = 'status-indicator';
+                switch (status) {
+                    case 'running':
+                        indicatorElement.classList.add('status-running');
+                        break;
+                    case 'stopped':
+                        indicatorElement.classList.add('status-stopped');
+                        break;
+                    case 'maintenance':
+                        indicatorElement.classList.add('status-maintenance');
+                        break;
+                }
+            }
+            
+            async fetchGameData() {
+                try {
+                    const response = await fetch('/admin/game-data/');
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.updateGameDisplay(data);
+                        this.updateStatistics(data.stats);
+                        this.updateLiveBets(data.live_bets);
+                        this.updateGameHistory(data.history);
+                    }
+                } catch (error) {
+                    console.error('Error fetching game data:', error);
+                }
+            }
+            
+            updateGameDisplay(data) {
+                const game = data.current_game;
+                if (game) {
+                    document.getElementById('currentRound').textContent = game.round_number;
+                    document.getElementById('currentMultiplier').textContent = `${game.multiplier}x`;
+                    document.getElementById('playersInRound').textContent = game.player_count;
+                    document.getElementById('totalBets').textContent = `KES ${game.total_bets}`;
+                    
+                    // Update game phase
+                    const phaseElement = document.getElementById('gamePhase');
+                    const phaseText = {
+                        'waiting': 'WAITING FOR PLAYERS',
+                        'betting': 'BETTING PHASE',
+                        'flying': 'FLYING',
+                        'crashed': 'CRASHED'
+                    };
+                    
+                    phaseElement.textContent = phaseText[game.status] || 'UNKNOWN';
+                    phaseElement.className = `game-phase ${game.status}`;
+                }
+            }
+            
+            updateStatistics(stats) {
+                document.getElementById('totalRevenue').textContent = `KES ${stats.total_revenue}`;
+                document.getElementById('activePlayers').textContent = stats.active_players;
+                document.getElementById('gamesToday').textContent = stats.games_today;
+                document.getElementById('houseProfit').textContent = `KES ${stats.house_profit}`;
+            }
+            
+            updateLiveBets(bets) {
+                const container = document.getElementById('liveBetsFeed');
+                if (!bets || bets.length === 0) {
+                    container.innerHTML = '<div class="text-center text-muted">No active bets</div>';
+                    return;
+                }
+                
+                container.innerHTML = bets.map(bet => `
+                    <div class="bet-item">
+                        <div class="d-flex justify-content-between">
+                            <strong>${bet.username}</strong>
+                            <span class="text-success">KES ${bet.amount}</span>
+                        </div>
+                        <small class="text-muted">
+                            Auto cash out: ${bet.auto_cash_out ? bet.auto_cash_out + 'x' : 'None'}
+                        </small>
+                    </div>
+                `).join('');
+            }
+            
+            updateGameHistory(history) {
+                const container = document.getElementById('recentGames');
+                if (!history || history.length === 0) return;
+                
+                container.innerHTML = history.slice(0, 10).map(game => {
+                    let colorClass = 'low';
+                    if (game.multiplier >= 10) colorClass = 'extreme';
+                    else if (game.multiplier >= 5) colorClass = 'high';
+                    else if (game.multiplier >= 2) colorClass = 'medium';
+                    
+                    return `
+                        <div class="game-result ${colorClass}">
+                            <div><strong>${game.multiplier}x</strong></div>
+                            <small>Round ${game.round}</small>
+                        </div>
+                    `;
+                }).join('');
+                
+                // Update table
+                const tableBody = document.getElementById('gameHistoryTable');
+                tableBody.innerHTML = history.slice(0, 20).map(game => `
+                    <tr>
+                        <td>#${game.round}</td>
+                        <td><strong class="text-success">${game.multiplier}x</strong></td>
+                        <td>${game.players}</td>
+                        <td>KES ${game.total_bets}</td>
+                        <td>KES ${game.total_payout}</td>
+                        <td>KES ${game.house_profit}</td>
+                        <td>${new Date(game.timestamp).toLocaleTimeString()}</td>
+                    </tr>
+                `).join('');
+            }
+            
+            addSystemLog(message, type = 'info') {
+                const container = document.getElementById('systemLogs');
+                const timestamp = new Date().toLocaleTimeString();
+                const colorClass = {
+                    'info': 'text-primary',
+                    'success': 'text-success',
+                    'warning': 'text-warning',
+                    'error': 'text-danger'
+                }[type] || 'text-dark';
+                
+                const logEntry = document.createElement('div');
+                logEntry.className = 'mb-2';
+                logEntry.innerHTML = `
+                    <small class="text-muted">${timestamp}</small>
+                    <span class="${colorClass} ms-2">${message}</span>
+                `;
+                
+                container.insertBefore(logEntry, container.firstChild);
+                
+                // Keep only last 100 logs
+                while (container.children.length > 100) {
+                    container.removeChild(container.lastChild);
+                }
+            }
+            
+            showAlert(message, type) {
+                const alertContainer = document.createElement('div');
+                alertContainer.className = `alert alert-${type} alert-dismissible fade show alert-custom`;
+                alertContainer.innerHTML = `
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                
+                document.body.insertBefore(alertContainer, document.body.firstChild);
+                
+                // Auto dismiss after 5 seconds
+                setTimeout(() => {
+                    if (alertContainer.parentNode) {
+                        alertContainer.remove();
+                    }
+                }, 5000);
+            }
+            
+            initCharts() {
+                // Revenue Chart
+                const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+                this.revenueChart = new Chart(revenueCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Revenue (KES)',
+                            data: [],
+                            borderColor: '#28a745',
+                            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Revenue Over Time'
+                            }
+                        }
+                    }
+                });
+                
+                // Multiplier Distribution Chart
+                const multiplierCtx = document.getElementById('multiplierChart').getContext('2d');
+                this.multiplierChart = new Chart(multiplierCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['< 2x', '2x - 5x', '5x - 10x', '> 10x'],
+                        datasets: [{
+                            data: [60, 25, 10, 5],
+                            backgroundColor: [
+                                '#dc3545',
+                                '#ffc107',
+                                '#28a745',
+                                '#6f42c1'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Multiplier Distribution'
+                            }
+                        }
+                    }
+                });
+            }
+            
+            startDataRefresh() {
+                // Refresh data every 2 seconds
+                setInterval(() => {
+                    if (this.gameState.isRunning) {
+                        this.fetchGameData();
+                    }
+                }, 2000);
+                
+                // Initial fetch
+                this.fetchGameData();
+            }
+            
+            getCsrfToken() {
+                return document.querySelector('[name=csrfmiddlewaretoken]').value;
+            }
+            
+            clearLogs() {
+                document.getElementById('systemLogs').innerHTML = '';
+                this.addSystemLog('Logs cleared by admin', 'info');
+            }
+            
+            async updateSettings() {
+                const settings = {
+                    house_edge: document.getElementById('houseEdge').value,
+                    betting_duration: document.getElementById('bettingDuration').value,
+                    game_interval: document.getElementById('gameInterval').value
+                };
+                
+                try {
+                    const response = await fetch('/admin/update-settings/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': this.getCsrfToken()
+                        },
+                        body: JSON.stringify(settings)
+                    });
+                    
+                    if (response.ok) {
+                        this.addSystemLog('Settings updated successfully', 'success');
+                        this.showAlert('Settings updated!', 'success');
+                    }
+                } catch (error) {
+                    this.addSystemLog(`Error updating settings: ${error.message}`, 'error');
+                    this.showAlert('Failed to update settings', 'error');
+                }
+            }
+            
+            toggleMaintenance() {
+                // Implementation for maintenance mode toggle
+                this.addSystemLog('Maintenance mode toggled', 'warning');
+                this.showAlert('Maintenance mode toggled', 'warning');
+            }
+            
+            saveAllSettings() {
+                // Implementation for saving all settings from modal
+                this.addSystemLog('All settings saved', 'success');
+                this.showAlert('All settings saved successfully!', 'success');
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
+                modal.hide();
+            }
+        }
+        
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            window.aviatorAdmin = new AviatorAdminDashboard();
+        });
+        
+        // Simulate some data for demo
+        setInterval(() => {
+            if (window.aviatorAdmin && window.aviatorAdmin.gameState.isRunning) {
+                // Simulate multiplier updates during flight
+                const currentMultiplier = parseFloat(document.getElementById('currentMultiplier').textContent);
+                if (currentMultiplier < 50) {
+                    const newMultiplier = (currentMultiplier + Math.random() * 0.5).toFixed(2);
+                    document.getElementById('currentMultiplier').textContent = newMultiplier + 'x';
+                }
+            }
+        }, 100);
+    </script>
+</body>
+</html>
