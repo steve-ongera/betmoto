@@ -531,3 +531,4 @@ Not Found: /admin/game-data/
 "GET /api/game-state/ HTTP/1.1" 200 1719
 "GET /api/game-state/ HTTP/1.1" 200 1719
 "GET /api/game-state/ HTTP/1.1" 200 1719
+Watching for file changes with StatReloader
