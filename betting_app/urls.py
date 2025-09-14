@@ -52,4 +52,9 @@ urlpatterns = [
     
     # Player management
     path('admin-suspend-player/', views.suspend_player, name='admin_suspend_player'),
+
+    path('admin-wallets/', views.wallet_management, name='wallet_management'),
+    path('admin-wallets/<int:wallet_id>/', views.get_wallet_details, name='get_wallet_details'),
+    path('admin-wallets/<int:wallet_id>/update/', views.update_wallet, name='update_wallet'),
+    path('admin-wallets/<int:wallet_id>/delete/', views.delete_wallet, name='delete_wallet'),
 ]

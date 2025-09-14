@@ -1,0 +1,448 @@
+{% extends "admin/admin_base.html" %}
+{% load static %}
+
+{% block title %}Wallet Management - BetMoto Admin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin/wallet_management.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fas fa-wallet"></i>
+        Wallet Management
+    </h1>
+    <p class="page-subtitle">Manage user wallets and balances</p>
+</div>
+
+<!-- Statistics Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <h3 class="stat-card-title">Total Balance</h3>
+            <div class="stat-card-icon" style="background: linear-gradient(135deg, var(--success), var(--secondary));">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+        </div>
+        <div class="stat-card-value">KES {{ total_balance|floatformat:2 }}</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <h3 class="stat-card-title">Total Bonus Balance</h3>
+            <div class="stat-card-icon" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark));">
+                <i class="fas fa-gift"></i>
+            </div>
+        </div>
+        <div class="stat-card-value">KES {{ total_bonus_balance|floatformat:2 }}</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <h3 class="stat-card-title">Total Wallets</h3>
+            <div class="stat-card-icon" style="background: linear-gradient(135deg, var(--warning), #d97706);">
+                <i class="fas fa-wallet"></i>
+            </div>
+        </div>
+        <div class="stat-card-value">{{ wallets_count }}</div>
+    </div>
+</div>
+
+<!-- Wallet Table -->
+<div class="content-card">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fas fa-list"></i>
+            Wallet List
+        </h2>
+        <div class="header-actions">
+            <input type="text" id="walletSearch" placeholder="Search wallets..." class="search-input">
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-container">
+            <table class="table" id="walletsTable">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Balance</th>
+                        <th>Bonus Balance</th>
+                        <th>Total Deposited</th>
+                        <th>Total Withdrawn</th>
+                        <th>Last Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for wallet in wallets %}
+                    <tr data-wallet-id="{{ wallet.id }}">
+                        <td>
+                            <div class="user-info">
+                                <strong>{{ wallet.user.username }}</strong>
+                                <small>{{ wallet.user.phone_number }}</small>
+                            </div>
+                        </td>
+                        <td>KES {{ wallet.balance|floatformat:2 }}</td>
+                        <td>KES {{ wallet.bonus_balance|floatformat:2 }}</td>
+                        <td>KES {{ wallet.total_deposited|floatformat:2 }}</td>
+                        <td>KES {{ wallet.total_withdrawn|floatformat:2 }}</td>
+                        <td>{{ wallet.updated_at|timesince }} ago</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-info view-wallet" data-wallet-id="{{ wallet.id }}">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="btn btn-sm btn-warning edit-wallet" data-wallet-id="{{ wallet.id }}">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="btn btn-sm btn-danger delete-wallet" data-wallet-id="{{ wallet.id }}">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- View Wallet Modal -->
+<div class="modal" id="viewWalletModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Wallet Details</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body" id="viewWalletContent">
+            <!-- Content will be loaded via AJAX -->
+        </div>
+    </div>
+</div>
+
+<!-- Edit Wallet Modal -->
+<div class="modal" id="editWalletModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Edit Wallet</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="editWalletForm">
+                <input type="hidden" id="editWalletId">
+                <div class="form-group">
+                    <label class="form-label">Balance (KES)</label>
+                    <input type="number" class="form-input" id="editBalance" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Bonus Balance (KES)</label>
+                    <input type="number" class="form-input" id="editBonusBalance" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Total Deposited (KES)</label>
+                    <input type="number" class="form-input" id="editTotalDeposited" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Total Withdrawn (KES)</label>
+                    <input type="number" class="form-input" id="editTotalWithdrawn" step="0.01" min="0" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelEdit">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal" id="deleteWalletModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Confirm Deletion</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete this wallet? This action cannot be undone.</p>
+            <div class="wallet-info-preview" id="deleteWalletPreview"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancelDelete">Cancel</button>
+            <button class="btn btn-danger" id="confirmDelete">Delete Wallet</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // CSRF token setup for AJAX requests
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+        
+        // Modal functionality
+        const modals = document.querySelectorAll('.modal');
+        const openModal = (modalId) => {
+            document.getElementById(modalId).style.display = 'block';
+        };
+        const closeModal = (modalId) => {
+            document.getElementById(modalId).style.display = 'none';
+        };
+        
+        // Close modals when clicking on X
+        document.querySelectorAll('.modal-close').forEach(button => {
+            button.addEventListener('click', function() {
+                this.closest('.modal').style.display = 'none';
+            });
+        });
+        
+        // Close modals when clicking outside
+        modals.forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.style.display = 'none';
+                }
+            });
+        });
+        
+        // View wallet functionality
+        document.querySelectorAll('.view-wallet').forEach(button => {
+            button.addEventListener('click', function() {
+                const walletId = this.dataset.walletId;
+                
+                fetch(`/admin-wallets/${walletId}/`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const wallet = data.wallet;
+                        document.getElementById('viewWalletContent').innerHTML = `
+                            <div class="wallet-details">
+                                <div class="detail-row">
+                                    <label>User:</label>
+                                    <span>${wallet.user.username} (${wallet.user.phone_number})</span>
+                                </div>
+                                <div class="detail-row">
+                                    <label>Balance:</label>
+                                    <span>KES ${wallet.balance.toFixed(2)}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <label>Bonus Balance:</label>
+                                    <span>KES ${wallet.bonus_balance.toFixed(2)}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <label>Total Deposited:</label>
+                                    <span>KES ${wallet.total_deposited.toFixed(2)}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <label>Total Withdrawn:</label>
+                                    <span>KES ${wallet.total_withdrawn.toFixed(2)}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <label>Created At:</label>
+                                    <span>${wallet.created_at}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <label>Last Updated:</label>
+                                    <span>${wallet.updated_at}</span>
+                                </div>
+                            </div>
+                        `;
+                        openModal('viewWalletModal');
+                    } else {
+                        alert('Error loading wallet details');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading wallet details');
+                });
+            });
+        });
+        
+        // Edit wallet functionality
+        let currentEditWalletId = null;
+        
+        document.querySelectorAll('.edit-wallet').forEach(button => {
+            button.addEventListener('click', function() {
+                const walletId = this.dataset.walletId;
+                currentEditWalletId = walletId;
+                
+                // Fetch current wallet data
+                fetch(`/admin-wallets/${walletId}/`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const wallet = data.wallet;
+                        document.getElementById('editWalletId').value = wallet.id;
+                        document.getElementById('editBalance').value = wallet.balance;
+                        document.getElementById('editBonusBalance').value = wallet.bonus_balance;
+                        document.getElementById('editTotalDeposited').value = wallet.total_deposited;
+                        document.getElementById('editTotalWithdrawn').value = wallet.total_withdrawn;
+                        
+                        openModal('editWalletModal');
+                    } else {
+                        alert('Error loading wallet data for editing');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading wallet data for editing');
+                });
+            });
+        });
+        
+        // Handle edit form submission
+        document.getElementById('editWalletForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const walletId = currentEditWalletId;
+            const formData = {
+                balance: document.getElementById('editBalance').value,
+                bonus_balance: document.getElementById('editBonusBalance').value,
+                total_deposited: document.getElementById('editTotalDeposited').value,
+                total_withdrawn: document.getElementById('editTotalWithdrawn').value
+            };
+            
+            fetch(`/admin-wallets/${walletId}/update/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Update the table row
+                    const row = document.querySelector(`tr[data-wallet-id="${walletId}"]`);
+                    if (row) {
+                        row.cells[1].textContent = `KES ${data.wallet.balance.toFixed(2)}`;
+                        row.cells[2].textContent = `KES ${data.wallet.bonus_balance.toFixed(2)}`;
+                        row.cells[3].textContent = `KES ${data.wallet.total_deposited.toFixed(2)}`;
+                        row.cells[4].textContent = `KES ${data.wallet.total_withdrawn.toFixed(2)}`;
+                        row.cells[5].textContent = 'Just now';
+                    }
+                    
+                    closeModal('editWalletModal');
+                    alert('Wallet updated successfully');
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating wallet');
+            });
+        });
+        
+        // Cancel edit
+        document.getElementById('cancelEdit').addEventListener('click', function() {
+            closeModal('editWalletModal');
+        });
+        
+        // Delete wallet functionality
+        let currentDeleteWalletId = null;
+        
+        document.querySelectorAll('.delete-wallet').forEach(button => {
+            button.addEventListener('click', function() {
+                const walletId = this.dataset.walletId;
+                currentDeleteWalletId = walletId;
+                
+                // Get wallet info for confirmation
+                const row = this.closest('tr');
+                const username = row.cells[0].querySelector('strong').textContent;
+                const balance = row.cells[1].textContent;
+                
+                document.getElementById('deleteWalletPreview').innerHTML = `
+                    <p><strong>User:</strong> ${username}</p>
+                    <p><strong>Balance:</strong> ${balance}</p>
+                `;
+                
+                openModal('deleteWalletModal');
+            });
+        });
+        
+        // Confirm delete
+        document.getElementById('confirmDelete').addEventListener('click', function() {
+            const walletId = currentDeleteWalletId;
+            
+            fetch(`/admin-wallets/${walletId}/delete/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Remove the row from the table
+                    const row = document.querySelector(`tr[data-wallet-id="${walletId}"]`);
+                    if (row) {
+                        row.remove();
+                    }
+                    
+                    closeModal('deleteWalletModal');
+                    alert('Wallet deleted successfully');
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error deleting wallet');
+            });
+        });
+        
+        // Cancel delete
+        document.getElementById('cancelDelete').addEventListener('click', function() {
+            closeModal('deleteWalletModal');
+        });
+        
+        // Search functionality
+        document.getElementById('walletSearch').addEventListener('input', function() {
+            const searchText = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#walletsTable tbody tr');
+            
+            rows.forEach(row => {
+                const username = row.cells[0].textContent.toLowerCase();
+                const phone = row.cells[0].querySelector('small').textContent.toLowerCase();
+                
+                if (username.includes(searchText) || phone.includes(searchText)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

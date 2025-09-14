@@ -1515,3 +1515,120 @@ def analytics_data(request):
         
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+# views.py
+from django.contrib.admin.views.decorators import staff_member_required
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render, get_object_or_404
+from django.db import transaction
+from decimal import Decimal
+import json
+
+from .models import Wallet, User
+
+@staff_member_required
+def wallet_management(request):
+    """Main wallet management view for admins"""
+    wallets = Wallet.objects.select_related('user').all()
+    return render(request, 'admin/wallet_management.html', {
+        'wallets': wallets,
+        'page_title': 'Wallet Management'
+    })
+
+@staff_member_required
+@require_http_methods(["GET"])
+def get_wallet_details(request, wallet_id):
+    """Get wallet details for viewing (AJAX)"""
+    wallet = get_object_or_404(Wallet, id=wallet_id)
+    
+    data = {
+        'id': wallet.id,
+        'user': {
+            'id': wallet.user.id,
+            'username': wallet.user.username,
+            'phone_number': wallet.user.phone_number
+        },
+        'balance': float(wallet.balance),
+        'bonus_balance': float(wallet.bonus_balance),
+        'total_deposited': float(wallet.total_deposited),
+        'total_withdrawn': float(wallet.total_withdrawn),
+        'created_at': wallet.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+        'updated_at': wallet.updated_at.strftime('%Y-%m-%d %H:%M:%S')
+    }
+    
+    return JsonResponse({'status': 'success', 'wallet': data})
+
+@staff_member_required
+@csrf_exempt
+@require_http_methods(["POST"])
+@transaction.atomic
+def update_wallet(request, wallet_id):
+    """Update wallet details (AJAX)"""
+    wallet = get_object_or_404(Wallet, id=wallet_id)
+    
+    try:
+        data = json.loads(request.body)
+        
+        # Update fields if they exist in the request
+        if 'balance' in data:
+            wallet.balance = Decimal(str(data['balance']))
+        if 'bonus_balance' in data:
+            wallet.bonus_balance = Decimal(str(data['bonus_balance']))
+        if 'total_deposited' in data:
+            wallet.total_deposited = Decimal(str(data['total_deposited']))
+        if 'total_withdrawn' in data:
+            wallet.total_withdrawn = Decimal(str(data['total_withdrawn']))
+        
+        wallet.save()
+        
+        return JsonResponse({
+            'status': 'success', 
+            'message': 'Wallet updated successfully',
+            'wallet': {
+                'id': wallet.id,
+                'balance': float(wallet.balance),
+                'bonus_balance': float(wallet.bonus_balance),
+                'total_deposited': float(wallet.total_deposited),
+                'total_withdrawn': float(wallet.total_withdrawn),
+                'updated_at': wallet.updated_at.strftime('%Y-%m-%d %H:%M:%S')
+            }
+        })
+        
+    except (ValueError, TypeError) as e:
+        return JsonResponse({
+            'status': 'error', 
+            'message': f'Invalid data format: {str(e)}'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error', 
+            'message': f'Error updating wallet: {str(e)}'
+        }, status=500)
+
+@staff_member_required
+@csrf_exempt
+@require_http_methods(["DELETE"])
+@transaction.atomic
+def delete_wallet(request, wallet_id):
+    """Delete a wallet (AJAX)"""
+    wallet = get_object_or_404(Wallet, id=wallet_id)
+    
+    try:
+        user_id = wallet.user.id
+        wallet.delete()
+        
+        return JsonResponse({
+            'status': 'success', 
+            'message': 'Wallet deleted successfully',
+            'deleted_wallet_id': wallet_id,
+            'user_id': user_id
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error', 
+            'message': f'Error deleting wallet: {str(e)}'
+        }, status=500)
