@@ -2,15 +2,67 @@
 
 {% block title %}Register - BetMoto Aviator{% endblock %}
 
+{% block extra_css %}
+<style>
+/* Enhanced text contrast for dark theme */
+.text-light-custom {
+    color: #f8f9fa !important;
+}
+.text-secondary-light {
+    color: #adb5bd !important;
+}
+.text-muted-readable {
+    color: #ced4da !important;
+}
+.card-dark {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+.form-control {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+.form-control:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #007bff;
+    color: #fff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+.form-control::placeholder {
+    color: #adb5bd;
+}
+.form-check-input:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+.alert-warning {
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    color: #fff3cd;
+}
+.alert-info {
+    background: rgba(13, 202, 240, 0.1);
+    border: 1px solid rgba(13, 202, 240, 0.3);
+    color: #d1ecf1;
+}
+.form-label {
+    color: #f8f9fa !important;
+    font-weight: 500;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
-        <div class="card">
+        <div class="card card-dark">
             <div class="card-body p-4">
                 <div class="text-center mb-4">
                     <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
-                    <h2 class="card-title">Create Account</h2>
-                    <p class="text-muted">Join BetMoto Aviator and start winning!</p>
+                    <h2 class="card-title text-light-custom">Create Account</h2>
+                    <p class="text-muted-readable">Join BetMoto Aviator and start winning!</p>
                 </div>
 
                 <form method="post">
@@ -39,7 +91,7 @@
                                     {{ form.phone_number.errors.0 }}
                                 </div>
                             {% endif %}
-                            <small class="text-muted">Format: +254712345678</small>
+                            <small class="text-secondary-light">Format: +254712345678</small>
                         </div>
                     </div>
 
@@ -65,7 +117,7 @@
                                 {{ form.date_of_birth.errors.0 }}
                             </div>
                         {% endif %}
-                        <small class="text-muted">You must be 18 or older</small>
+                        <small class="text-secondary-light">You must be 18 or older</small>
                     </div>
 
                     <div class="row">
@@ -103,7 +155,7 @@
                     <!-- Terms and Conditions -->
                     <div class="mb-3 form-check">
                         {{ form.terms_accepted }}
-                        <label class="form-check-label" for="{{ form.terms_accepted.id_for_label }}">
+                        <label class="form-check-label text-light-custom" for="{{ form.terms_accepted.id_for_label }}">
                             I accept the <a href="#" class="text-primary">Terms and Conditions</a> 
                             and <a href="#" class="text-primary">Privacy Policy</a> *
                         </label>
@@ -127,10 +179,10 @@
                     </button>
                 </form>
 
-                <hr class="my-4">
+                <hr class="my-4" style="border-color: rgba(255, 255, 255, 0.2);">
 
                 <div class="text-center">
-                    <p class="text-muted mb-2">Already have an account?</p>
+                    <p class="text-muted-readable mb-2">Already have an account?</p>
                     <a href="{% url 'login' %}" class="btn btn-outline-light">
                         <i class="fas fa-sign-in-alt"></i> Login
                     </a>
@@ -139,23 +191,23 @@
         </div>
 
         <!-- Security Features -->
-        <div class="card mt-3">
+        <div class="card card-dark mt-3">
             <div class="card-body">
-                <h6 class="card-title">
+                <h6 class="card-title text-light-custom">
                     <i class="fas fa-shield-alt text-success"></i> Your Security
                 </h6>
                 <div class="row text-center">
                     <div class="col-4">
                         <i class="fas fa-lock text-primary"></i>
-                        <small class="d-block text-muted">Encrypted</small>
+                        <small class="d-block text-secondary-light">Encrypted</small>
                     </div>
                     <div class="col-4">
                         <i class="fas fa-user-shield text-success"></i>
-                        <small class="d-block text-muted">KYC Verified</small>
+                        <small class="d-block text-secondary-light">KYC Verified</small>
                     </div>
                     <div class="col-4">
                         <i class="fas fa-mobile-alt text-warning"></i>
-                        <small class="d-block text-muted">2FA Ready</small>
+                        <small class="d-block text-secondary-light">2FA Ready</small>
                     </div>
                 </div>
             </div>

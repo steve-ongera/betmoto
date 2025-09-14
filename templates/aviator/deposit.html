@@ -3,186 +3,255 @@
 {% block title %}Deposit Funds - BetMoto Aviator{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <!-- Deposit Form -->
-        <div class="card">
-            <div class="card-header">
-                <h4 class="mb-0">
-                    <i class="fas fa-plus-circle text-success"></i> Deposit Funds
-                </h4>
-            </div>
-            <div class="card-body">
-                <form method="post" id="depositForm">
-                    {% csrf_token %}
-                    
-                    <!-- Payment Method Selection -->
-                    <div class="mb-4">
-                        <label for="{{ form.payment_method.id_for_label }}" class="form-label">
-                            <i class="fas fa-credit-card"></i> Payment Method
-                        </label>
-                        {{ form.payment_method }}
-                        {% if form.payment_method.errors %}
-                            <div class="text-danger small mt-1">
-                                {{ form.payment_method.errors.0 }}
-                            </div>
-                        {% endif %}
-                    </div>
+<style>
+/* Enhanced text contrast for dark theme */
+.text-light-custom {
+    color: #f8f9fa !important;
+}
+.text-secondary-light {
+    color: #adb5bd !important;
+}
+.text-muted-readable {
+    color: #ced4da !important;
+}
+.card-dark {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.form-control {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+.form-control:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #28a745;
+    color: #fff;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+.form-select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+.method-card {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: all 0.3s ease;
+}
+.method-card:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(40, 167, 69, 0.5);
+}
+</style>
 
-                    <!-- Quick Amount Buttons -->
-                    <div class="mb-3">
-                        <label class="form-label">Quick Select Amount</label>
-                        <div class="row g-2">
-                            <div class="col-4">
-                                <button type="button" class="btn btn-outline-primary w-100 quick-amount" data-amount="100">
-                                    KES 100
-                                </button>
-                            </div>
-                            <div class="col-4">
-                                <button type="button" class="btn btn-outline-primary w-100 quick-amount" data-amount="500">
-                                    KES 500
-                                </button>
-                            </div>
-                            <div class="col-4">
-                                <button type="button" class="btn btn-outline-primary w-100 quick-amount" data-amount="1000">
-                                    KES 1,000
-                                </button>
-                            </div>
-                            <div class="col-4">
-                                <button type="button" class="btn btn-outline-primary w-100 quick-amount" data-amount="2000">
-                                    KES 2,000
-                                </button>
-                            </div>
-                            <div class="col-4">
-                                <button type="button" class="btn btn-outline-primary w-100 quick-amount" data-amount="5000">
-                                    KES 5,000
-                                </button>
-                            </div>
-                            <div class="col-4">
-                                <button type="button" class="btn btn-outline-primary w-100 quick-amount" data-amount="10000">
-                                    KES 10,000
-                                </button>
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-8">
+            
+            <!-- Header -->
+            <div class="card card-dark mb-3">
+                <div class="card-body py-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h4 class="mb-1 text-light-custom">
+                                <i class="fas fa-plus-circle text-success"></i> Deposit Funds
+                            </h4>
+                            <p class="mb-0 text-secondary-light">Add funds to your account instantly</p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <div class="d-flex align-items-center justify-content-md-end">
+                                <i class="fas fa-shield-alt text-success me-2"></i>
+                                <small class="text-success">100% Secure</small>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Amount Input -->
-                    <div class="mb-3">
-                        <label for="{{ form.amount.id_for_label }}" class="form-label">
-                            <i class="fas fa-money-bill"></i> Deposit Amount
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-primary text-white">KES</span>
-                            {{ form.amount }}
-                        </div>
-                        {% if form.amount.errors %}
-                            <div class="text-danger small mt-1">
-                                {{ form.amount.errors.0 }}
-                            </div>
-                        {% endif %}
-                        <div id="amount-limits" class="small text-muted mt-1"></div>
-                    </div>
-
-                    <!-- Phone Number -->
-                    <div class="mb-4">
-                        <label for="{{ form.phone_number.id_for_label }}" class="form-label">
-                            <i class="fas fa-phone"></i> M-Pesa Phone Number
-                        </label>
-                        {{ form.phone_number }}
-                        {% if form.phone_number.errors %}
-                            <div class="text-danger small mt-1">
-                                {{ form.phone_number.errors.0 }}
-                            </div>
-                        {% endif %}
-                        <small class="text-muted">The number to receive the M-Pesa prompt</small>
-                    </div>
-
-                    <!-- Fee Information -->
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i>
-                        <strong>Transaction Details:</strong>
-                        <div id="fee-breakdown" class="mt-2">
-                            <div class="d-flex justify-content-between">
-                                <span>Amount:</span>
-                                <span id="deposit-amount-display">KES 0.00</span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span>Fee:</span>
-                                <span id="deposit-fee-display">KES 0.00</span>
-                            </div>
-                            <hr class="my-2">
-                            <div class="d-flex justify-content-between fw-bold">
-                                <span>You'll Receive:</span>
-                                <span id="net-amount-display">KES 0.00</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-success w-100 py-2" id="submitBtn">
-                        <i class="fas fa-plus"></i> Deposit Funds
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Payment Instructions -->
-        <div class="card mt-4">
-            <div class="card-body">
-                <h5 class="card-title">
-                    <i class="fas fa-mobile-alt"></i> How to Deposit
-                </h5>
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6 class="text-primary">M-Pesa Steps:</h6>
-                        <ol class="small">
-                            <li>Enter your deposit amount</li>
-                            <li>Enter your M-Pesa number</li>
-                            <li>Click "Deposit Funds"</li>
-                            <li>Check your phone for M-Pesa prompt</li>
-                            <li>Enter your M-Pesa PIN</li>
-                            <li>Funds reflect in 1-2 minutes</li>
-                        </ol>
-                    </div>
-                    <div class="col-md-6">
-                        <h6 class="text-success">Security Features:</h6>
-                        <ul class="small">
-                            <li><i class="fas fa-shield-alt text-success"></i> Encrypted transactions</li>
-                            <li><i class="fas fa-lock text-success"></i> Secure M-Pesa integration</li>
-                            <li><i class="fas fa-clock text-success"></i> Instant processing</li>
-                            <li><i class="fas fa-headset text-success"></i> 24/7 support</li>
-                        </ul>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Available Payment Methods -->
-        <div class="card mt-4">
-            <div class="card-body">
-                <h5 class="card-title">
-                    <i class="fas fa-credit-card"></i> Available Payment Methods
-                </h5>
-                <div class="row">
-                    {% for method in payment_methods %}
-                    <div class="col-md-6 mb-3">
-                        <div class="border rounded p-3 {% if method.code == 'mpesa' %}border-success{% else %}border-secondary{% endif %}">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-{% if method.code == 'mpesa' %}mobile-alt text-success{% else %}credit-card text-primary{% endif %} fa-2x me-3"></i>
-                                <div>
-                                    <h6 class="mb-1">{{ method.name }}</h6>
-                                    <small class="text-muted">
-                                        Min: KES {{ method.min_deposit }} | Max: KES {{ method.max_deposit }}
-                                    </small>
-                                    {% if method.fee_percentage > 0 %}
-                                    <small class="d-block text-warning">
-                                        Fee: {{ method.fee_percentage }}%
-                                    </small>
+            <!-- Main Deposit Form -->
+            <div class="card card-dark">
+                <div class="card-body">
+                    <form method="post" id="depositForm">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <!-- Left Column -->
+                            <div class="col-md-7">
+                                <!-- Payment Method -->
+                                <div class="mb-3">
+                                    <label class="form-label text-light-custom">
+                                        <i class="fas fa-credit-card text-success"></i> Payment Method
+                                    </label>
+                                    {{ form.payment_method }}
+                                    {% if form.payment_method.errors %}
+                                        <div class="text-danger small mt-1">{{ form.payment_method.errors.0 }}</div>
                                     {% endif %}
+                                </div>
+
+                                <!-- Amount Input -->
+                                <div class="mb-3">
+                                    <label class="form-label text-light-custom">
+                                        <i class="fas fa-money-bill text-primary"></i> Deposit Amount
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-success text-white fw-bold">KES</span>
+                                        {{ form.amount }}
+                                    </div>
+                                    {% if form.amount.errors %}
+                                        <div class="text-danger small mt-1">{{ form.amount.errors.0 }}</div>
+                                    {% endif %}
+                                    <div id="amount-limits" class="small text-secondary-light mt-1"></div>
+                                </div>
+
+                                <!-- Phone Number -->
+                                <div class="mb-3">
+                                    <label class="form-label text-light-custom">
+                                        <i class="fas fa-phone text-info"></i> M-Pesa Number
+                                    </label>
+                                    {{ form.phone_number }}
+                                    {% if form.phone_number.errors %}
+                                        <div class="text-danger small mt-1">{{ form.phone_number.errors.0 }}</div>
+                                    {% endif %}
+                                    <small class="text-secondary-light">Number to receive M-Pesa prompt</small>
+                                </div>
+                            </div>
+
+                            <!-- Right Column -->
+                            <div class="col-md-5">
+                                <!-- Quick Amount Selection -->
+                                <div class="mb-3">
+                                    <label class="form-label text-light-custom">Quick Select</label>
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <button type="button" class="btn btn-outline-success w-100 btn-sm quick-amount" data-amount="100">
+                                                KES 100
+                                            </button>
+                                        </div>
+                                        <div class="col-6">
+                                            <button type="button" class="btn btn-outline-success w-100 btn-sm quick-amount" data-amount="500">
+                                                KES 500
+                                            </button>
+                                        </div>
+                                        <div class="col-6">
+                                            <button type="button" class="btn btn-outline-success w-100 btn-sm quick-amount" data-amount="1000">
+                                                KES 1K
+                                            </button>
+                                        </div>
+                                        <div class="col-6">
+                                            <button type="button" class="btn btn-outline-success w-100 btn-sm quick-amount" data-amount="5000">
+                                                KES 5K
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Fee Breakdown -->
+                                <div class="alert alert-info">
+                                    <div class="d-flex justify-content-between small">
+                                        <span>Amount:</span>
+                                        <span id="deposit-amount-display" class="fw-bold">KES 0</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between small">
+                                        <span>Fee:</span>
+                                        <span id="deposit-fee-display" class="fw-bold">KES 0</span>
+                                    </div>
+                                    <hr class="my-2">
+                                    <div class="d-flex justify-content-between fw-bold">
+                                        <span>You Get:</span>
+                                        <span id="net-amount-display" class="text-success">KES 0</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success py-2" id="submitBtn">
+                                <i class="fas fa-paper-plane"></i> Deposit Now
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Payment Methods & Instructions -->
+            <div class="row mt-3">
+                <!-- Available Methods -->
+                <div class="col-md-6">
+                    <div class="card card-dark">
+                        <div class="card-body py-3">
+                            <h6 class="text-success mb-3">
+                                <i class="fas fa-credit-card"></i> Available Methods
+                            </h6>
+                            {% for method in payment_methods %}
+                            <div class="method-card rounded p-2 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-{% if method.code == 'mpesa' %}mobile-alt text-success{% else %}credit-card text-primary{% endif %} me-2"></i>
+                                    <div class="flex-grow-1">
+                                        <small class="text-light-custom d-block fw-bold">{{ method.name }}</small>
+                                        <small class="text-secondary-light">KES {{ method.min_deposit }} - {{ method.max_deposit|floatformat:0 }}</small>
+                                    </div>
+                                    {% if method.fee_percentage > 0 %}
+                                    <span class="badge bg-warning text-dark">{{ method.fee_percentage }}% fee</span>
+                                    {% else %}
+                                    <span class="badge bg-success">Free</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
-                    {% endfor %}
+                </div>
+                
+                <!-- Quick Instructions -->
+                <div class="col-md-6">
+                    <div class="card card-dark">
+                        <div class="card-body py-3">
+                            <h6 class="text-info mb-3">
+                                <i class="fas fa-mobile-alt"></i> How to Deposit
+                            </h6>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="text-center mb-2">
+                                        <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
+                                            <small class="text-white fw-bold">1</small>
+                                        </div>
+                                        <small class="text-secondary-light d-block mt-1">Enter Amount</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center mb-2">
+                                        <div class="bg-info rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
+                                            <small class="text-white fw-bold">2</small>
+                                        </div>
+                                        <small class="text-secondary-light d-block mt-1">Click Deposit</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center mb-2">
+                                        <div class="bg-warning rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
+                                            <small class="text-dark fw-bold">3</small>
+                                        </div>
+                                        <small class="text-secondary-light d-block mt-1">Check Phone</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center mb-2">
+                                        <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
+                                            <small class="text-white fw-bold">4</small>
+                                        </div>
+                                        <small class="text-secondary-light d-block mt-1">Enter PIN</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-2">
+                                <small class="text-success">
+                                    <i class="fas fa-clock"></i> Instant Processing
+                                </small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -197,7 +266,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const phoneInput = document.getElementById('{{ form.phone_number.id_for_label }}');
     const submitBtn = document.getElementById('submitBtn');
     
-    // Payment method limits data
     const paymentMethods = {
         {% for method in payment_methods %}
         '{{ method.id }}': {
@@ -212,26 +280,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // Quick amount buttons
     document.querySelectorAll('.quick-amount').forEach(btn => {
         btn.addEventListener('click', function() {
-            const amount = this.dataset.amount;
-            amountInput.value = amount;
+            amountInput.value = this.dataset.amount;
             updateFeeCalculation();
             
-            // Visual feedback
             document.querySelectorAll('.quick-amount').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
         });
     });
 
-    // Update limits when payment method changes
     paymentMethodSelect.addEventListener('change', function() {
         updateLimitsDisplay();
         updateFeeCalculation();
     });
 
-    // Update fee calculation when amount changes
     amountInput.addEventListener('input', updateFeeCalculation);
 
-    // Pre-fill phone number with user's number
+    // Pre-fill phone
     if (phoneInput && '{{ user.phone_number }}') {
         phoneInput.value = '{{ user.phone_number }}';
     }
@@ -242,13 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (selectedMethodId && paymentMethods[selectedMethodId]) {
             const method = paymentMethods[selectedMethodId];
-            limitsDiv.innerHTML = `Limits: KES ${method.min_deposit.toFixed(2)} - KES ${method.max_deposit.toLocaleString()}`;
-            
-            // Update amount input limits
-            amountInput.min = method.min_deposit;
-            amountInput.max = method.max_deposit;
-        } else {
-            limitsDiv.innerHTML = '';
+            limitsDiv.innerHTML = `Min: KES ${method.min_deposit} • Max: KES ${method.max_deposit.toLocaleString()}`;
         }
     }
 
@@ -261,30 +319,24 @@ document.addEventListener('DOMContentLoaded', function() {
             const fee = (amount * method.fee_percentage / 100);
             const netAmount = amount - fee;
             
-            document.getElementById('deposit-amount-display').textContent = `KES ${amount.toFixed(2)}`;
-            document.getElementById('deposit-fee-display').textContent = `KES ${fee.toFixed(2)}`;
-            document.getElementById('net-amount-display').textContent = `KES ${netAmount.toFixed(2)}`;
+            document.getElementById('deposit-amount-display').textContent = `KES ${amount.toFixed(0)}`;
+            document.getElementById('deposit-fee-display').textContent = `KES ${fee.toFixed(0)}`;
+            document.getElementById('net-amount-display').textContent = `KES ${netAmount.toFixed(0)}`;
         } else {
-            document.getElementById('deposit-amount-display').textContent = 'KES 0.00';
-            document.getElementById('deposit-fee-display').textContent = 'KES 0.00';
-            document.getElementById('net-amount-display').textContent = 'KES 0.00';
+            document.getElementById('deposit-amount-display').textContent = 'KES 0';
+            document.getElementById('deposit-fee-display').textContent = 'KES 0';
+            document.getElementById('net-amount-display').textContent = 'KES 0';
         }
     }
 
-    // Form submission handling
+    // Form validation
     document.getElementById('depositForm').addEventListener('submit', function(e) {
         const amount = parseFloat(amountInput.value) || 0;
         const selectedMethodId = paymentMethodSelect.value;
         
-        if (!selectedMethodId) {
+        if (!selectedMethodId || amount <= 0) {
             e.preventDefault();
-            showToast('Please select a payment method', 'warning');
-            return;
-        }
-        
-        if (amount <= 0) {
-            e.preventDefault();
-            showToast('Please enter a valid amount', 'warning');
+            alert('Please check your deposit details');
             return;
         }
         
@@ -292,17 +344,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const method = paymentMethods[selectedMethodId];
             if (amount < method.min_deposit || amount > method.max_deposit) {
                 e.preventDefault();
-                showToast(`Amount must be between KES ${method.min_deposit} and KES ${method.max_deposit}`, 'warning');
+                alert(`Amount must be between KES ${method.min_deposit} and KES ${method.max_deposit}`);
                 return;
             }
         }
         
-        // Show loading state
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="loading-spinner me-2"></span>Processing...';
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
     });
 
-    // Initialize displays
+    // Initialize
     updateLimitsDisplay();
     updateFeeCalculation();
 });
