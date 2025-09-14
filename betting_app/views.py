@@ -225,7 +225,7 @@ def withdrawal_view(request):
 @csrf_exempt
 @require_http_methods(["GET"])
 def game_state(request):
-    """Get current game state"""
+    """Get current game state with enhanced multiplier tracking"""
     try:
         current_game = AviatorGame.objects.filter(
             status__in=['waiting', 'betting', 'flying']
@@ -243,6 +243,39 @@ def game_state(request):
                 seed=hashlib.md5(f"{time.time()}".encode()).hexdigest(),
                 hash_value=hashlib.sha256(f"{time.time()}".encode()).hexdigest()
             )
+        
+        # Enhanced multiplier calculation for smoother experience
+        current_multiplier = 1.00
+        if current_game.status == 'flying':
+            # Calculate real-time multiplier based on flight time
+            if current_game.start_time:
+                flight_time = (timezone.now() - current_game.start_time).total_seconds()
+                # Smoother multiplier progression
+                current_multiplier = 1.00 + (flight_time * 0.1)  # Increases by 0.1 per second
+                
+                # Cap at game's final multiplier if set
+                if current_game.multiplier and current_multiplier >= float(current_game.multiplier):
+                    current_multiplier = float(current_game.multiplier)
+        
+        # Get user's current bet if authenticated
+        user_bet = None
+        potential_payout = 0
+        if request.user.is_authenticated and current_game:
+            try:
+                bet = AviatorBet.objects.get(
+                    user=request.user,
+                    game=current_game,
+                    status='active'
+                )
+                user_bet = {
+                    'id': str(bet.id),
+                    'amount': float(bet.bet_amount),
+                    'auto_cash_out': float(bet.auto_cash_out_at) if bet.auto_cash_out_at else None,
+                    'status': bet.status
+                }
+                potential_payout = float(bet.bet_amount) * current_multiplier
+            except AviatorBet.DoesNotExist:
+                pass
         
         # Get bets for current game
         bets = []
@@ -276,10 +309,13 @@ def game_state(request):
                 'id': str(current_game.id),
                 'round_number': current_game.round_number,
                 'status': current_game.status,
-                'multiplier': float(current_game.multiplier) if current_game.multiplier else 1.0,
+                'multiplier': current_multiplier,
+                'final_multiplier': float(current_game.multiplier) if current_game.multiplier else None,
                 'start_time': current_game.start_time.isoformat() if current_game.start_time else None,
                 'betting_end_time': current_game.betting_end_time.isoformat() if current_game.betting_end_time else None,
             },
+            'user_bet': user_bet,
+            'potential_payout': potential_payout,
             'bets': bets,
             'history': history,
             'server_time': timezone.now().isoformat()
@@ -352,7 +388,8 @@ def place_bet(request):
         return JsonResponse({
             'success': True,
             'bet_id': str(bet.id),
-            'new_balance': float(wallet.balance)
+            'new_balance': float(wallet.balance),
+            'bet_amount': float(bet_amount)
         })
         
     except Exception as e:
@@ -363,7 +400,7 @@ def place_bet(request):
 @login_required
 @require_http_methods(["POST"])
 def cash_out(request):
-    """Cash out active bet"""
+    """Cash out active bet with real-time multiplier"""
     try:
         data = json.loads(request.body)
         current_multiplier = Decimal(str(data.get('multiplier', 1.0)))
@@ -384,6 +421,10 @@ def cash_out(request):
         
         if not bet:
             return JsonResponse({'error': 'No active bet found'}, status=400)
+        
+        # Validate multiplier is reasonable (game hasn't crashed)
+        if current_game.multiplier and current_multiplier > current_game.multiplier:
+            return JsonResponse({'error': 'Game has already crashed'}, status=400)
         
         # Calculate payout
         payout = bet.bet_amount * current_multiplier
@@ -427,7 +468,8 @@ def cash_out(request):
             'success': True,
             'payout': float(payout),
             'multiplier': float(current_multiplier),
-            'new_balance': float(wallet.balance)
+            'new_balance': float(wallet.balance),
+            'message': f'Successfully cashed out at {current_multiplier}x!'
         })
         
     except Exception as e:
@@ -547,6 +589,7 @@ def end_betting_phase(game_id):
     try:
         game = AviatorGame.objects.get(id=game_id)
         game.status = 'flying'
+        game.start_time = timezone.now()  # Set actual flight start time
         game.save()
         
         # Generate crash multiplier (provably fair)
@@ -732,8 +775,7 @@ def simulate_game_round(request):
         
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-
-
+    
 # admin_views.py
 from django.shortcuts import render, redirect
 from django.contrib.admin.views.decorators import staff_member_required

@@ -4,338 +4,736 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}BetMoto Aviator{% endblock %}</title>
-     <link rel="icon" type="image/x-icon" href="{% static 'favicon.svg'%}">
+    <title>{% block title %}BetMoto Aviator - Professional Gaming Platform{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.svg'%}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --primary-color: #1a73e8;
-            --secondary-color: #34a853;
-            --danger-color: #ea4335;
-            --warning-color: #fbbc04;
-            --dark-bg: #1a1a1a;
-            --card-bg: #2d2d2d;
-            --text-light: #ffffff;
-            --text-muted: #9aa0a6;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #059669;
+            --secondary-dark: #047857;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #06b6d4;
+            --dark: #111827;
+            --light: #f8fafc;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --sidebar-width: 280px;
+            --header-height: 72px;
+            --border-radius: 12px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-            color: var(--text-light);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1e1e3f 25%, #2d2d5f  75%, #1a1a3a 100%);
+            color: #ffffff;
+            line-height: 1.6;
+            font-weight: 400;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        .navbar {
-            background: rgba(26, 26, 46, 0.95) !important;
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        /* Header Styles */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 1000;
+            transition: all 0.3s ease;
         }
 
-        .navbar-brand {
-            font-weight: bold;
-            color: var(--primary-color) !important;
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+            padding: 0 1.5rem;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .brand:hover {
+            color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 1.5rem;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .mobile-menu-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--primary);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .wallet-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 16px;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .wallet-info:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary);
+        }
+
+        .balance-amount {
+            font-weight: 600;
+            color: var(--success);
+            font-size: 0.95rem;
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .user-avatar:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: var(--sidebar-width);
+            height: calc(100vh - var(--header-height));
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+            z-index: 999;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .nav-menu {
+            padding: 1.5rem 0;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray-400);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-item {
+            margin: 0.25rem 0;
         }
 
         .nav-link {
-            color: var(--text-light) !important;
-            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 1.5rem;
+            color: #ffffff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            font-weight: 500;
         }
 
         .nav-link:hover {
-            color: var(--primary-color) !important;
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            border-left-color: var(--primary);
         }
 
-        /* Custom dropdown styling for dark theme */
+        .nav-link.active {
+            background: rgba(37, 99, 235, 0.15);
+            color: var(--primary);
+            border-left-color: var(--primary);
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--header-height);
+            min-height: calc(100vh - var(--header-height));
+            padding: 2rem;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: 0;
+        }
+
+        /* Dropdown Menu */
         .dropdown-menu {
-            background-color: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-xl);
+            min-width: 200px;
+            padding: 0.5rem 0;
+            margin-top: 8px;
         }
 
         .dropdown-item {
-            color: var(--text-light);
+            padding: 10px 16px;
+            color: #ffffff;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
         }
 
-        .dropdown-item:hover,
-        .dropdown-item:focus {
-            background-color: rgba(26, 115, 232, 0.1);
-            color: var(--primary-color);
+        .dropdown-item:hover {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
         }
 
         .dropdown-divider {
-            border-color: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.08);
+            margin: 0.5rem 0;
         }
 
-        .card {
-            background: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
+        /* Buttons */
+        .btn {
+            font-weight: 500;
+            border-radius: var(--border-radius);
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.95rem;
         }
 
         .btn-primary {
-            background: linear-gradient(45deg, var(--primary-color), #4285f4);
-            border: none;
-            border-radius: 25px;
-            transition: all 0.3s ease;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(26, 115, 232, 0.3);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
         }
 
         .btn-success {
-            background: linear-gradient(45deg, var(--secondary-color), #4caf50);
-            border: none;
-            border-radius: 25px;
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+            color: white;
         }
 
         .btn-danger {
-            background: linear-gradient(45deg, var(--danger-color), #f44336);
-            border: none;
-            border-radius: 25px;
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
         }
 
-        .form-control {
-            background: rgba(255, 255, 255, 0.1);
+        .btn-outline {
+            background: transparent;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            color: var(--text-light);
-            border-radius: 10px;
+            color: #ffffff;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Forms */
+        .form-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border-radius: var(--border-radius);
+            padding: 12px 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
 
         .form-control:focus {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: var(--primary-color);
-            color: var(--text-light);
-            box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.25);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+            outline: none;
         }
 
         .form-control::placeholder {
-            color: var(--text-muted);
+            color: var(--gray-400);
         }
 
-        .text-muted {
-            color: var(--text-muted) !important;
+        /* Cards */
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--border-radius);
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
         }
 
-        .balance-card {
-            background: linear-gradient(135deg, var(--secondary-color), #4caf50);
-            border-radius: 15px;
-            padding: 1.5rem;
-            color: white;
-            box-shadow: 0 8px 32px rgba(52, 168, 83, 0.3);
+        .card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
         }
 
-        .multiplier-high {
-            color: #4caf50;
-            font-weight: bold;
-        }
-
-        .multiplier-medium {
-            color: #ff9800;
-            font-weight: bold;
-        }
-
-        .multiplier-low {
-            color: #f44336;
-            font-weight: bold;
-        }
-
-        .game-history-item {
-            display: inline-block;
-            margin: 2px;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            min-width: 60px;
-            text-align: center;
-        }
-
-        .history-green {
-            background: linear-gradient(45deg, #4caf50, #81c784);
-            color: white;
-        }
-
-        .history-yellow {
-            background: linear-gradient(45deg, #ff9800, #ffb74d);
-            color: white;
-        }
-
-        .history-red {
-            background: linear-gradient(45deg, #f44336, #e57373);
-            color: white;
-        }
-
-        .history-purple {
-            background: linear-gradient(45deg, #9c27b0, #ba68c8);
-            color: white;
-        }
-
+        /* Alerts */
         .alert {
-            border-radius: 10px;
+            border-radius: var(--border-radius);
             border: none;
+            padding: 16px 20px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
+        .alert-success {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+            border-left: 4px solid var(--warning);
+        }
+
+        .alert-info {
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--info);
+            border-left: 4px solid var(--info);
+        }
+
+        /* Mobile Overlay */
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-overlay.active {
+            opacity: 1;
+        }
+
+        /* Footer */
         .footer {
-            background: var(--dark-bg);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(17, 24, 39, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 2rem 0;
             margin-top: 3rem;
         }
 
-        .animate-pulse {
-            animation: pulse 1.5s infinite;
+        /* Authentication Pages */
+        .auth-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 2rem;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+        .auth-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2.5rem;
+            backdrop-filter: blur(20px);
         }
 
-        .loading-spinner {
-            display: inline-block;
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 0 1rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .wallet-info {
+                display: none;
+            }
+
+            .brand {
+                font-size: 1.25rem;
+            }
+
+            .brand-icon {
+                width: 36px;
+                height: 36px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content {
+                padding: 0 0.75rem;
+            }
+
+            .main-content {
+                padding: 0.75rem;
+            }
+
+            .auth-card {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Loading States */
+        .loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .spinner {
             width: 20px;
             height: 20px;
             border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid var(--primary);
             border-radius: 50%;
-            border-top-color: var(--primary-color);
             animation: spin 1s linear infinite;
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        /* Fix for navbar dropdown appearing behind other elements */
-
-        /* Method 1: Target the specific navbar */
-        .navbar-nav {
-            position: relative;
-            z-index: 1050; /* Bootstrap's navbar z-index is typically 1030, so use higher */
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: calc(var(--header-height) + 1rem);
+            right: 1rem;
+            z-index: 1050;
         }
 
-        /* Method 2: Target the dropdown menus specifically */
-        .navbar-nav .dropdown-menu {
-            z-index: 1060;
-            position: absolute;
+        .toast {
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--border-radius);
+            color: #ffffff;
+            min-width: 300px;
+            box-shadow: var(--shadow-xl);
         }
 
-        /* Method 3: More specific targeting for Bootstrap dropdowns */
-        .navbar-nav .dropdown-menu.show {
-            z-index: 1060;
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
         }
 
-        /* Alternative: If you need even higher z-index values */
-        .navbar-nav {
-            z-index: 9999 !important;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .navbar-nav .dropdown-menu {
-            z-index: 10000 !important;
+        .slide-in-left {
+            animation: slideInLeft 0.3s ease-in-out;
         }
 
-        /* Ensure the parent navbar container also has proper stacking */
-        .navbar {
-            z-index: 1040;
-            position: relative;
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}">
-                <i class="fas fa-plane"></i> BetMoto Aviator
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'home' %}">
-                            <i class="fas fa-gamepad"></i> Play
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="d-flex align-items-center gap-3">
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <a href="{% url 'home' %}" class="brand">
+                    <div class="brand-icon">
+                        <i class="fas fa-plane"></i>
+                    </div>
+                    <span>BetMoto</span>
+                </a>
+            </div>
+
+            <div class="header-actions">
+                {% if user.is_authenticated %}
+                    <div class="wallet-info">
+                        <i class="fas fa-wallet text-success"></i>
+                        <span class="balance-amount">
+                            {% if wallet %}KES {{ wallet.balance|floatformat:2 }}{% else %}KES 0.00{% endif %}
+                        </span>
+                    </div>
+
+                    <div class="dropdown user-menu">
+                        <div class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ user.username|first|upper }}
+                        </div>
+                        <ul class="dropdown-menu dropdown-menu-end fade-in">
+                            <li><a class="dropdown-item" href="{% url 'profile' %}">
+                                <i class="fas fa-user-circle"></i> Profile
+                            </a></li>
+                            <li><a class="dropdown-item" href="{% url 'transactions' %}">
+                                <i class="fas fa-history"></i> Transactions
+                            </a></li>
+                            <li><a class="dropdown-item" href="{% url 'deposit' %}">
+                                <i class="fas fa-plus text-success"></i> Deposit
+                            </a></li>
+                            <li><a class="dropdown-item" href="{% url 'withdrawal' %}">
+                                <i class="fas fa-minus text-danger"></i> Withdraw
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a></li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'login' %}" class="btn btn-outline">
+                            <i class="fas fa-sign-in-alt"></i> Login
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'leaderboard' %}">
-                            <i class="fas fa-trophy"></i> Leaderboard
+                        <a href="{% url 'register' %}" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> Register
                         </a>
-                    </li>
-                </ul>
-                
-                <ul class="navbar-nav">
-                    {% if user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="walletDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-wallet"></i> 
-                                {% if wallet %}KES {{ wallet.balance }}{% else %}KES 0.00{% endif %}
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="walletDropdown">
-                                <li><a class="dropdown-item" href="{% url 'deposit' %}">
-                                    <i class="fas fa-plus"></i> Deposit
-                                </a></li>
-                                <li><a class="dropdown-item" href="{% url 'withdrawal' %}">
-                                    <i class="fas fa-minus"></i> Withdraw
-                                </a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-user"></i> {{ user.username }}
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="userDropdown">
-                                <li><a class="dropdown-item" href="{% url 'profile' %}">
-                                    <i class="fas fa-user-circle"></i> Profile
-                                </a></li>
-                                <li><a class="dropdown-item" href="{% url 'transactions' %}">
-                                    <i class="fas fa-history"></i> Transactions
-                                </a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'logout' %}">
-                                    <i class="fas fa-sign-out-alt"></i> Logout
-                                </a></li>
-                            </ul>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login' %}">
-                                <i class="fas fa-sign-in-alt"></i> Login
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'register' %}">
-                                <i class="fas fa-user-plus"></i> Register
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
+                    </div>
+                {% endif %}
             </div>
         </div>
-    </nav>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="nav-menu">
+            <div class="nav-section">
+                <div class="nav-section-title">Main Menu</div>
+                <div class="nav-item">
+                    <a href="{% url 'home' %}" class="nav-link active">
+                        <div class="nav-icon"><i class="fas fa-gamepad"></i></div>
+                        <span>Play Game</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'leaderboard' %}" class="nav-link">
+                        <div class="nav-icon"><i class="fas fa-trophy"></i></div>
+                        <span>Leaderboard</span>
+                    </a>
+                </div>
+            </div>
+
+            {% if user.is_authenticated %}
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <div class="nav-item">
+                        <a href="{% url 'profile' %}" class="nav-link">
+                            <div class="nav-icon"><i class="fas fa-user-circle"></i></div>
+                            <span>Profile</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{% url 'transactions' %}" class="nav-link">
+                            <div class="nav-icon"><i class="fas fa-history"></i></div>
+                            <span>Transaction History</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Wallet</div>
+                    <div class="nav-item">
+                        <a href="{% url 'deposit' %}" class="nav-link">
+                            <div class="nav-icon"><i class="fas fa-plus text-success"></i></div>
+                            <span>Deposit Funds</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{% url 'withdrawal' %}" class="nav-link">
+                            <div class="nav-icon"><i class="fas fa-minus text-danger"></i></div>
+                            <span>Withdraw</span>
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="nav-section">
+                <div class="nav-section-title">Support</div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link">
+                        <div class="nav-icon"><i class="fas fa-question-circle"></i></div>
+                        <span>Help & Support</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link">
+                        <div class="nav-icon"><i class="fas fa-shield-alt"></i></div>
+                        <span>Responsible Gaming</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </aside>
 
     <!-- Main Content -->
-    <main class="container-fluid py-4">
+    <main class="main-content" id="mainContent">
+        <!-- Toast Container -->
+        <div class="toast-container" id="toastContainer"></div>
+
         <!-- Messages -->
         {% if messages %}
-            <div class="row">
-                <div class="col-12">
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    {% endfor %}
-                </div>
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} fade-in" role="alert">
+                        <i class="fas fa-info-circle"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
             </div>
         {% endif %}
 
@@ -343,122 +741,586 @@
     </main>
 
     <!-- Footer -->
-    <footer class="footer mt-auto py-3">
-        <div class="container">
-            <div class="row">
+    <footer class="footer">
+        <div class="container-fluid px-4">
+            <div class="row align-items-center">
                 <div class="col-md-6">
-                    <p class="text-muted mb-0">
-                        &copy; 2024 BetMoto. Play responsibly.
+                    <p class="mb-0 text-muted">
+                        <i class="fas fa-shield-alt"></i>
+                        &copy; 2024 BetMoto. Licensed & Regulated. Play Responsibly.
                     </p>
                 </div>
                 <div class="col-md-6 text-end">
-                    <small class="text-muted">
-                        <i class="fas fa-shield-alt"></i> Licensed & Regulated
-                    </small>
+                    <div class="d-flex gap-3 justify-content-md-end justify-content-start mt-2 mt-md-0">
+                        <a href="#" class="text-muted text-decoration-none">
+                            <i class="fas fa-file-alt"></i> Terms
+                        </a>
+                        <a href="#" class="text-muted text-decoration-none">
+                            <i class="fas fa-user-shield"></i> Privacy
+                        </a>
+                        <a href="#" class="text-muted text-decoration-none">
+                            <i class="fas fa-headset"></i> Support
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </footer>
 
     <!-- Scripts -->
-     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
     <script>
-        // Ensure Bootstrap is loaded before initializing dropdowns
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize dropdowns
-            document.querySelectorAll('.dropdown-toggle').forEach(function (el) {
-                new bootstrap.Dropdown(el);
-            });
-
-            // Debug check
-            if (typeof bootstrap !== 'undefined') {
-                console.log("✅ Bootstrap dropdowns initialized");
-            } else {
-                console.error("❌ Bootstrap not loaded");
+        // Mobile Navigation
+        class MobileNav {
+            constructor() {
+                this.sidebar = document.getElementById('sidebar');
+                this.mainContent = document.getElementById('mainContent');
+                this.mobileMenuBtn = document.getElementById('mobileMenuBtn');
+                this.mobileOverlay = document.getElementById('mobileOverlay');
+                this.isOpen = false;
+                
+                this.init();
             }
-        });
-
-        // Global variables for CSRF token
-        const csrfToken = '{{ csrf_token }}';
-        
-        // Utility functions
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-
-        // Format currency
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-KE', {
-                style: 'currency',
-                currency: 'KES',
-                minimumFractionDigits: 2
-            }).format(amount);
-        }
-
-        // Format multiplier with color
-        function formatMultiplier(multiplier) {
-            let colorClass = 'multiplier-low';
-            if (multiplier >= 10) {
-                colorClass = 'multiplier-high';
-            } else if (multiplier >= 2) {
-                colorClass = 'multiplier-medium';
-            }
-            return `<span class="${colorClass}">${multiplier.toFixed(2)}x</span>`;
-        }
-
-        // Show toast notification
-        function showToast(message, type = 'info') {
-            const toastContainer = document.getElementById('toast-container') || createToastContainer();
-            const toast = document.createElement('div');
-            toast.className = `toast align-items-center text-white bg-${type} border-0`;
-            toast.setAttribute('role', 'alert');
-            toast.innerHTML = `
-                <div class="d-flex">
-                    <div class="toast-body">${message}</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                </div>
-            `;
-            toastContainer.appendChild(toast);
-            const bootstrapToast = new bootstrap.Toast(toast);
-            bootstrapToast.show();
-        }
-
-        function createToastContainer() {
-            const container = document.createElement('div');
-            container.id = 'toast-container';
-            container.className = 'toast-container position-fixed top-0 end-0 p-3';
-            container.style.zIndex = '9999';
-            document.body.appendChild(container);
-            return container;
-        }
-
-        // Force dropdown to front when opened
-        document.addEventListener('DOMContentLoaded', function() {
-            const dropdowns = document.querySelectorAll('.navbar-nav .dropdown');
             
-            dropdowns.forEach(dropdown => {
-                dropdown.addEventListener('show.bs.dropdown', function() {
-                    this.style.zIndex = '10000';
-                    const menu = this.querySelector('.dropdown-menu');
-                    if (menu) {
-                        menu.style.zIndex = '10001';
+            init() {
+                // Mobile menu button click
+                this.mobileMenuBtn?.addEventListener('click', () => this.toggle());
+                
+                // Overlay click
+                this.mobileOverlay?.addEventListener('click', () => this.close());
+                
+                // Close on escape key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && this.isOpen) {
+                        this.close();
                     }
                 });
+                
+                // Handle resize
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth > 1024 && this.isOpen) {
+                        this.close();
+                    }
+                });
+                
+                // Close sidebar when nav link clicked on mobile
+                const navLinks = this.sidebar?.querySelectorAll('.nav-link');
+                navLinks?.forEach(link => {
+                    link.addEventListener('click', () => {
+                        if (window.innerWidth <= 1024) {
+                            this.close();
+                        }
+                    });
+                });
+            }
+            
+            toggle() {
+                if (this.isOpen) {
+                    this.close();
+                } else {
+                    this.open();
+                }
+            }
+            
+            open() {
+                if (!this.sidebar) return;
+                
+                this.sidebar.classList.remove('hidden');
+                this.mobileOverlay?.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                
+                // Update button icon
+                const icon = this.mobileMenuBtn?.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                }
+                
+                this.isOpen = true;
+            }
+            
+            close() {
+                if (!this.sidebar) return;
+                
+                this.sidebar.classList.add('hidden');
+                this.mobileOverlay?.classList.remove('active');
+                document.body.style.overflow = '';
+                
+                // Update button icon
+                const icon = this.mobileMenuBtn?.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+                
+                this.isOpen = false;
+            }
+        }
+
+        // Navigation Active State
+        class NavigationManager {
+            constructor() {
+                this.currentPath = window.location.pathname;
+                this.init();
+            }
+            
+            init() {
+                this.setActiveNavigation();
+            }
+            
+            setActiveNavigation() {
+                const navLinks = document.querySelectorAll('.nav-link');
+                
+                navLinks.forEach(link => {
+                    const href = link.getAttribute('href');
+                    link.classList.remove('active');
+                    
+                    if (href === this.currentPath || 
+                        (this.currentPath === '/' && href.includes('home'))) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        }
+
+        // Toast Notification System
+        class ToastManager {
+            constructor() {
+                this.container = document.getElementById('toastContainer');
+                this.init();
+            }
+            
+            init() {
+                if (!this.container) {
+                    this.createContainer();
+                }
+            }
+            
+            createContainer() {
+                this.container = document.createElement('div');
+                this.container.id = 'toastContainer';
+                this.container.className = 'toast-container';
+                document.body.appendChild(this.container);
+            }
+            
+            show(message, type = 'info', duration = 5000) {
+                const toast = this.createToast(message, type);
+                this.container.appendChild(toast);
+                
+                // Animate in
+                setTimeout(() => toast.classList.add('show'), 100);
+                
+                // Auto remove
+                setTimeout(() => this.remove(toast), duration);
+                
+                return toast;
+            }
+            
+            createToast(message, type) {
+                const toast = document.createElement('div');
+                toast.className = `toast align-items-center border-0 mb-2 fade-in`;
+                
+                const icons = {
+                    success: 'fa-check-circle',
+                    error: 'fa-exclamation-triangle',
+                    warning: 'fa-exclamation-triangle',
+                    info: 'fa-info-circle'
+                };
+                
+                const colors = {
+                    success: 'text-success',
+                    error: 'text-danger', 
+                    warning: 'text-warning',
+                    info: 'text-info'
+                };
+                
+                toast.innerHTML = `
+                    <div class="d-flex align-items-center p-3">
+                        <i class="fas ${icons[type] || icons.info} ${colors[type] || colors.info} me-2"></i>
+                        <div class="toast-body flex-grow-1">${message}</div>
+                        <button type="button" class="btn-close btn-close-white ms-2" onclick="toastManager.remove(this.closest('.toast'))"></button>
+                    </div>
+                `;
+                
+                return toast;
+            }
+            
+            remove(toast) {
+                if (toast && toast.parentNode) {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        if (toast.parentNode) {
+                            toast.parentNode.removeChild(toast);
+                        }
+                    }, 300);
+                }
+            }
+            
+            success(message, duration) {
+                return this.show(message, 'success', duration);
+            }
+            
+            error(message, duration) {
+                return this.show(message, 'error', duration);
+            }
+            
+            warning(message, duration) {
+                return this.show(message, 'warning', duration);
+            }
+            
+            info(message, duration) {
+                return this.show(message, 'info', duration);
+            }
+        }
+
+        // Form Enhancement
+        class FormEnhancer {
+            constructor() {
+                this.init();
+            }
+            
+            init() {
+                this.enhanceFormInputs();
+                this.addFormValidation();
+            }
+            
+            enhanceFormInputs() {
+                const inputs = document.querySelectorAll('.form-control');
+                
+                inputs.forEach(input => {
+                    // Add focus/blur effects
+                    input.addEventListener('focus', (e) => {
+                        e.target.parentElement?.classList.add('focused');
+                    });
+                    
+                    input.addEventListener('blur', (e) => {
+                        e.target.parentElement?.classList.remove('focused');
+                    });
+                    
+                    // Add input validation styling
+                    input.addEventListener('input', (e) => {
+                        this.validateInput(e.target);
+                    });
+                });
+            }
+            
+            validateInput(input) {
+                const value = input.value.trim();
+                const type = input.type;
+                const required = input.hasAttribute('required');
+                
+                input.classList.remove('is-valid', 'is-invalid');
+                
+                if (required && !value) {
+                    input.classList.add('is-invalid');
+                    return false;
+                }
+                
+                if (type === 'email' && value) {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(value)) {
+                        input.classList.add('is-invalid');
+                        return false;
+                    }
+                }
+                
+                if (value) {
+                    input.classList.add('is-valid');
+                }
+                
+                return true;
+            }
+            
+            addFormValidation() {
+                const forms = document.querySelectorAll('form');
+                
+                forms.forEach(form => {
+                    form.addEventListener('submit', (e) => {
+                        const inputs = form.querySelectorAll('.form-control[required]');
+                        let isValid = true;
+                        
+                        inputs.forEach(input => {
+                            if (!this.validateInput(input)) {
+                                isValid = false;
+                            }
+                        });
+                        
+                        if (!isValid) {
+                            e.preventDefault();
+                            toastManager.error('Please fill in all required fields correctly.');
+                        }
+                    });
+                });
+            }
+        }
+
+        // Loading State Manager
+        class LoadingManager {
+            static showButtonLoading(button, text = 'Loading...') {
+                if (!button) return;
+                
+                button.dataset.originalText = button.innerHTML;
+                button.disabled = true;
+                button.innerHTML = `
+                    <span class="loading">
+                        <span class="spinner"></span>
+                        ${text}
+                    </span>
+                `;
+            }
+            
+            static hideButtonLoading(button) {
+                if (!button || !button.dataset.originalText) return;
+                
+                button.disabled = false;
+                button.innerHTML = button.dataset.originalText;
+                delete button.dataset.originalText;
+            }
+            
+            static showPageLoading() {
+                const loader = document.createElement('div');
+                loader.id = 'pageLoader';
+                loader.className = 'position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center';
+                loader.style.background = 'rgba(17, 24, 39, 0.9)';
+                loader.style.zIndex = '9999';
+                loader.innerHTML = `
+                    <div class="text-center">
+                        <div class="spinner mb-3" style="width: 40px; height: 40px;"></div>
+                        <div class="text-white">Loading...</div>
+                    </div>
+                `;
+                
+                document.body.appendChild(loader);
+            }
+            
+            static hidePageLoading() {
+                const loader = document.getElementById('pageLoader');
+                if (loader) {
+                    loader.remove();
+                }
+            }
+        }
+
+        // Utility Functions
+        const Utils = {
+            // Format currency
+            formatCurrency(amount, currency = 'KES') {
+                return new Intl.NumberFormat('en-KE', {
+                    style: 'currency',
+                    currency: currency,
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(amount);
+            },
+            
+            // Format number with commas
+            formatNumber(number) {
+                return new Intl.NumberFormat('en-KE').format(number);
+            },
+            
+            // Get CSRF token
+            getCsrfToken() {
+                const token = document.querySelector('[name=csrfmiddlewaretoken]');
+                return token ? token.value : '{{ csrf_token }}';
+            },
+            
+            // Debounce function
+            debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            },
+            
+            // Copy to clipboard
+            async copyToClipboard(text) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    toastManager.success('Copied to clipboard!');
+                    return true;
+                } catch (err) {
+                    toastManager.error('Failed to copy to clipboard');
+                    return false;
+                }
+            },
+            
+            // Smooth scroll to element
+            scrollToElement(element, offset = 0) {
+                if (typeof element === 'string') {
+                    element = document.querySelector(element);
+                }
+                
+                if (element) {
+                    const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+                    const offsetPosition = elementPosition - offset;
+                    
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        };
+
+        // Theme Manager
+        class ThemeManager {
+            constructor() {
+                this.currentTheme = localStorage.getItem('theme') || 'dark';
+                this.init();
+            }
+            
+            init() {
+                this.applyTheme(this.currentTheme);
+                this.createThemeToggle();
+            }
+            
+            applyTheme(theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+                this.currentTheme = theme;
+            }
+            
+            toggleTheme() {
+                const newTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
+                this.applyTheme(newTheme);
+            }
+            
+            createThemeToggle() {
+                // Add theme toggle button if needed
+                const themeToggle = document.createElement('button');
+                themeToggle.className = 'btn btn-outline position-fixed';
+                themeToggle.style.bottom = '20px';
+                themeToggle.style.right = '20px';
+                themeToggle.style.zIndex = '1000';
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                themeToggle.title = 'Toggle theme';
+                
+                themeToggle.addEventListener('click', () => {
+                    this.toggleTheme();
+                    themeToggle.innerHTML = this.currentTheme === 'dark' 
+                        ? '<i class="fas fa-sun"></i>' 
+                        : '<i class="fas fa-moon"></i>';
+                });
+                
+                // Uncomment to add theme toggle
+                // document.body.appendChild(themeToggle);
+            }
+        }
+
+        // Performance Monitor
+        class PerformanceMonitor {
+            constructor() {
+                this.init();
+            }
+            
+            init() {
+                if ('performance' in window) {
+                    this.monitorPageLoad();
+                    this.monitorNetworkRequests();
+                }
+            }
+            
+            monitorPageLoad() {
+                window.addEventListener('load', () => {
+                    const perfData = performance.getEntriesByType('navigation')[0];
+                    const loadTime = perfData.loadEventEnd - perfData.loadEventStart;
+                    
+                    if (loadTime > 3000) {
+                        console.warn('Page load time is slow:', loadTime + 'ms');
+                    }
+                });
+            }
+            
+            monitorNetworkRequests() {
+                // Monitor fetch requests
+                const originalFetch = window.fetch;
+                window.fetch = async (...args) => {
+                    const start = performance.now();
+                    const response = await originalFetch(...args);
+                    const end = performance.now();
+                    
+                    if (end - start > 2000) {
+                        console.warn('Slow network request:', args[0], `${end - start}ms`);
+                    }
+                    
+                    return response;
+                };
+            }
+        }
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize core components
+            const mobileNav = new MobileNav();
+            const navigationManager = new NavigationManager();
+            const formEnhancer = new FormEnhancer();
+            const themeManager = new ThemeManager();
+            const performanceMonitor = new PerformanceMonitor();
+            
+            // Initialize global instances
+            window.toastManager = new ToastManager();
+            window.LoadingManager = LoadingManager;
+            window.Utils = Utils;
+            
+            // Initialize Bootstrap components
+            const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            tooltips.forEach(tooltip => new bootstrap.Tooltip(tooltip));
+            
+            const dropdowns = document.querySelectorAll('.dropdown-toggle');
+            dropdowns.forEach(dropdown => new bootstrap.Dropdown(dropdown));
+            
+            // Global error handler
+            window.addEventListener('error', (e) => {
+                console.error('Global error:', e.error);
+                toastManager.error('An unexpected error occurred. Please try again.');
             });
+            
+            // Handle form submissions globally
+            document.addEventListener('submit', (e) => {
+                const form = e.target;
+                if (form.tagName === 'FORM') {
+                    const submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
+                    if (submitButton && !form.hasAttribute('data-no-loading')) {
+                        LoadingManager.showButtonLoading(submitButton);
+                        
+                        // Hide loading after 10 seconds max
+                        setTimeout(() => {
+                            LoadingManager.hideButtonLoading(submitButton);
+                        }, 10000);
+                    }
+                }
+            });
+            
+            // Add loading states to async links
+            document.addEventListener('click', (e) => {
+                const link = e.target.closest('a[href]');
+                if (link && link.hasAttribute('data-loading')) {
+                    LoadingManager.showPageLoading();
+                    
+                    // Hide loading after 5 seconds max
+                    setTimeout(() => {
+                        LoadingManager.hidePageLoading();
+                    }, 5000);
+                }
+            });
+            
+            console.log('✅ BetMoto Application Initialized Successfully');
         });
+
+        // Global variables for Django integration
+        const csrfToken = '{{ csrf_token }}';
+        const isAuthenticated = {% if user.is_authenticated %}true{% else %}false{% endif %};
+        const currentUser = {% if user.is_authenticated %}'{{ user.username }}'{% else %}null{% endif %};
+        const walletBalance = {% if wallet %}{{ wallet.balance }}{% else %}0{% endif %};
     </script>
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>
