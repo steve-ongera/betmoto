@@ -3,6 +3,22 @@
 {% block title %}Profile - BetMoto Aviator{% endblock %}
 
 {% block content %}
+<style>
+/* Improved text contrast */
+.text-secondary-dark {
+    color: #f3f3f3ff !important;
+}
+.text-muted-readable {
+    color: #fff !important;
+    font-weight: 500;
+}
+.small-readable {
+    color: #ffff !important;
+    font-size: 0.9rem;
+}
+
+</style>
+
 <div class="row">
     <!-- Profile Header -->
     <div class="col-12 mb-4">
@@ -15,12 +31,12 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <h3 class="mb-1">{{ user.username }}</h3>
-                        <p class="text-muted mb-2">
+                        <h3 class="mb-1 text-dark">{{ user.username }}</h3>
+                        <p class="text-secondary-dark mb-2">
                             <i class="fas fa-phone"></i> {{ user.phone_number }}
                         </p>
                         {% if user.email %}
-                        <p class="text-muted mb-2">
+                        <p class="text-secondary-dark mb-2">
                             <i class="fas fa-envelope"></i> {{ user.email }}
                         </p>
                         {% endif %}
@@ -39,10 +55,10 @@
                     </div>
                     <div class="col-md-3 text-center">
                         <div class="balance-card">
-                            <h5 class="mb-1">Current Balance</h5>
-                            <h3 class="mb-0">KES {{ wallet.balance }}</h3>
+                            <h5 class="mb-1 text-dark">Current Balance</h5>
+                            <h3 class="mb-0 text-success fw-bold">KES {{ wallet.balance }}</h3>
                             {% if wallet.bonus_balance > 0 %}
-                            <small>Bonus: KES {{ wallet.bonus_balance }}</small>
+                            <small class="text-secondary-dark">Bonus: KES {{ wallet.bonus_balance }}</small>
                             {% endif %}
                         </div>
                     </div>
@@ -55,7 +71,7 @@
     <div class="col-12 mb-4">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">
+                <h5 class="card-title text-dark">
                     <i class="fas fa-bolt"></i> Quick Actions
                 </h5>
                 <div class="row g-3">
@@ -88,19 +104,19 @@
     <div class="col-md-6 mb-4">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">
+                <h5 class="card-title text-dark">
                     <i class="fas fa-wallet"></i> Wallet Overview
                 </h5>
                 <div class="row text-center">
                     <div class="col-6">
                         <div class="border-end">
                             <h4 class="text-success">KES {{ wallet.total_deposited }}</h4>
-                            <small class="text-muted">Total Deposited</small>
+                            <small class="text-secondary-dark fw-bold">Total Deposited</small>
                         </div>
                     </div>
                     <div class="col-6">
                         <h4 class="text-warning">KES {{ wallet.total_withdrawn }}</h4>
-                        <small class="text-muted">Total Withdrawn</small>
+                        <small class="text-secondary-dark fw-bold">Total Withdrawn</small>
                     </div>
                 </div>
             </div>
@@ -111,7 +127,7 @@
     <div class="col-md-6 mb-4">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">
+                <h5 class="card-title text-dark">
                     <i class="fas fa-chart-line"></i> Game Statistics
                 </h5>
                 {% if user_stats %}
@@ -119,26 +135,26 @@
                     <div class="col-6 mb-3">
                         <div class="border-end">
                             <h4 class="text-primary">{{ user_stats.total_games_played }}</h4>
-                            <small class="text-muted">Games Played</small>
+                            <small class="text-secondary-dark fw-bold">Games Played</small>
                         </div>
                     </div>
                     <div class="col-6 mb-3">
                         <h4 class="text-success">{{ user_stats.win_rate }}%</h4>
-                        <small class="text-muted">Win Rate</small>
+                        <small class="text-secondary-dark fw-bold">Win Rate</small>
                     </div>
                     <div class="col-6">
                         <div class="border-end">
                             <h4 class="text-warning">{{ user_stats.highest_multiplier }}x</h4>
-                            <small class="text-muted">Best Multiplier</small>
+                            <small class="text-secondary-dark fw-bold">Best Multiplier</small>
                         </div>
                     </div>
                     <div class="col-6">
                         <h4 class="text-info">KES {{ user_stats.biggest_win }}</h4>
-                        <small class="text-muted">Biggest Win</small>
+                        <small class="text-secondary-dark fw-bold">Biggest Win</small>
                     </div>
                 </div>
                 {% else %}
-                <p class="text-muted text-center">No game statistics available yet. Start playing to see your stats!</p>
+                <p class="text-secondary-dark text-center">No game statistics available yet. Start playing to see your stats!</p>
                 {% endif %}
             </div>
         </div>
@@ -148,7 +164,7 @@
     <div class="col-md-6 mb-4">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
+                <h5 class="mb-0 text-dark">
                     <i class="fas fa-exchange-alt"></i> Recent Transactions
                 </h5>
                 <a href="{% url 'transactions' %}" class="btn btn-sm btn-outline-primary">View All</a>
@@ -161,21 +177,21 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <i class="fas fa-{% if transaction.transaction_type == 'deposit' %}plus text-success{% elif transaction.transaction_type == 'withdrawal' %}minus text-warning{% elif transaction.transaction_type == 'bet' %}gamepad text-primary{% elif transaction.transaction_type == 'win' %}trophy text-success{% else %}gift text-info{% endif %}"></i>
-                                <span class="ms-2">{{ transaction.get_transaction_type_display }}</span>
-                                <small class="text-muted d-block">{{ transaction.created_at|date:"M d, Y H:i" }}</small>
+                                <span class="ms-2 text-dark">{{ transaction.get_transaction_type_display }}</span>
+                                <small class="text-secondary-dark d-block">{{ transaction.created_at|date:"M d, Y H:i" }}</small>
                             </div>
                             <div class="text-end">
                                 <span class="fw-bold {% if transaction.transaction_type == 'win' or transaction.transaction_type == 'deposit' or transaction.transaction_type == 'bonus' %}text-success{% else %}text-warning{% endif %}">
                                     {% if transaction.transaction_type == 'bet' or transaction.transaction_type == 'withdrawal' %}-{% else %}+{% endif %}KES {{ transaction.amount }}
                                 </span>
-                                <small class="d-block text-muted">{{ transaction.get_status_display }}</small>
+                                <small class="d-block text-secondary-dark">{{ transaction.get_status_display }}</small>
                             </div>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
                 {% else %}
-                <p class="text-muted text-center">No transactions yet.</p>
+                <p class="text-secondary-dark text-center">No transactions yet.</p>
                 {% endif %}
             </div>
         </div>
@@ -187,12 +203,12 @@
             <div class="card-header">
                 <ul class="nav nav-tabs card-header-tabs" id="financeTab" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="deposits-tab" data-bs-toggle="tab" data-bs-target="#deposits" type="button" role="tab">
+                        <button class="nav-link active text-dark" id="deposits-tab" data-bs-toggle="tab" data-bs-target="#deposits" type="button" role="tab">
                             <i class="fas fa-arrow-down"></i> Deposits
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="withdrawals-tab" data-bs-toggle="tab" data-bs-target="#withdrawals" type="button" role="tab">
+                        <button class="nav-link text-dark" id="withdrawals-tab" data-bs-toggle="tab" data-bs-target="#withdrawals" type="button" role="tab">
                             <i class="fas fa-arrow-up"></i> Withdrawals
                         </button>
                     </li>
@@ -207,8 +223,8 @@
                             <div class="list-group-item bg-transparent border-0 px-0">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <span>{{ deposit.payment_method.name }}</span>
-                                        <small class="text-muted d-block">{{ deposit.created_at|date:"M d, Y H:i" }}</small>
+                                        <span class="text-dark">{{ deposit.payment_method.name }}</span>
+                                        <small class="text-secondary-dark d-block">{{ deposit.created_at|date:"M d, Y H:i" }}</small>
                                     </div>
                                     <div class="text-end">
                                         <span class="fw-bold text-success">+KES {{ deposit.amount }}</span>
@@ -221,7 +237,7 @@
                             {% endfor %}
                         </div>
                         {% else %}
-                        <p class="text-muted text-center">No deposits yet.</p>
+                        <p class="text-secondary-dark text-center">No deposits yet.</p>
                         {% endif %}
                     </div>
                     <div class="tab-pane fade" id="withdrawals" role="tabpanel">
@@ -231,8 +247,8 @@
                             <div class="list-group-item bg-transparent border-0 px-0">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <span>{{ withdrawal.payment_method.name }}</span>
-                                        <small class="text-muted d-block">{{ withdrawal.created_at|date:"M d, Y H:i" }}</small>
+                                        <span class="text-dark">{{ withdrawal.payment_method.name }}</span>
+                                        <small class="text-secondary-dark d-block">{{ withdrawal.created_at|date:"M d, Y H:i" }}</small>
                                     </div>
                                     <div class="text-end">
                                         <span class="fw-bold text-warning">-KES {{ withdrawal.amount }}</span>
@@ -245,7 +261,7 @@
                             {% endfor %}
                         </div>
                         {% else %}
-                        <p class="text-muted text-center">No withdrawals yet.</p>
+                        <p class="text-secondary-dark text-center">No withdrawals yet.</p>
                         {% endif %}
                     </div>
                 </div>
@@ -257,7 +273,7 @@
     <div class="col-12 mb-4">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">
+                <h5 class="card-title text-dark">
                     <i class="fas fa-shield-alt"></i> Account Security
                 </h5>
                 <div class="row">
@@ -265,8 +281,8 @@
                         <div class="d-flex align-items-center">
                             <i class="fas fa-{% if user.is_verified %}check-circle text-success{% else %}exclamation-circle text-warning{% endif %} fa-2x me-3"></i>
                             <div>
-                                <h6 class="mb-0">Phone Verification</h6>
-                                <small class="text-muted">
+                                <h6 class="mb-0 text-dark">Phone Verification</h6>
+                                <small class="text-secondary-dark">
                                     {% if user.is_verified %}Verified{% else %}Pending{% endif %}
                                 </small>
                             </div>
@@ -276,8 +292,8 @@
                         <div class="d-flex align-items-center">
                             <i class="fas fa-{% if user.kyc_status == 'verified' %}check-circle text-success{% elif user.kyc_status == 'rejected' %}times-circle text-danger{% else %}clock text-warning{% endif %} fa-2x me-3"></i>
                             <div>
-                                <h6 class="mb-0">KYC Status</h6>
-                                <small class="text-muted">{{ user.get_kyc_status_display }}</small>
+                                <h6 class="mb-0 text-dark">KYC Status</h6>
+                                <small class="text-secondary-dark">{{ user.get_kyc_status_display }}</small>
                             </div>
                         </div>
                     </div>
@@ -285,8 +301,8 @@
                         <div class="d-flex align-items-center">
                             <i class="fas fa-calendar fa-2x text-info me-3"></i>
                             <div>
-                                <h6 class="mb-0">Member Since</h6>
-                                <small class="text-muted">{{ user.date_joined|date:"M Y" }}</small>
+                                <h6 class="mb-0 text-dark">Member Since</h6>
+                                <small class="text-secondary-dark">{{ user.date_joined|date:"M Y" }}</small>
                             </div>
                         </div>
                     </div>
@@ -318,20 +334,20 @@
     <div class="col-12 mb-4">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">
+                <h5 class="card-title text-dark">
                     <i class="fas fa-heart"></i> Responsible Gaming
                 </h5>
                 <div class="row">
                     <div class="col-md-6">
-                        <h6>Betting Limits</h6>
-                        <p class="text-muted">Set daily, weekly, or monthly limits to control your spending.</p>
+                        <h6 class="text-dark">Betting Limits</h6>
+                        <p class="text-secondary-dark">Set daily, weekly, or monthly limits to control your spending.</p>
                         <button class="btn btn-outline-warning btn-sm">
                             <i class="fas fa-cog"></i> Manage Limits
                         </button>
                     </div>
                     <div class="col-md-6">
-                        <h6>Self-Exclusion</h6>
-                        <p class="text-muted">Take a break from gaming if needed.</p>
+                        <h6 class="text-dark">Self-Exclusion</h6>
+                        <p class="text-secondary-dark">Take a break from gaming if needed.</p>
                         <button class="btn btn-outline-danger btn-sm">
                             <i class="fas fa-pause"></i> Set Break
                         </button>
